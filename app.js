@@ -178,10 +178,10 @@ const game2048 = {
     },
     popBothTiles: function (tile1, tile2, idx, direction, updateClasses) {
         if (updateClasses) {
+            const oldValue = parseInt(tile1.innerText);
+            const newValue = 2 * oldValue;
+            this.score += newValue;
             tile2.addEventListener('transitionend', () => {
-                oldValue = parseInt(tile1.innerText);
-                newValue = 2 * oldValue;
-                this.score += newValue;
                 tile1.innerText = newValue.toLocaleString();
                 tile1.classList.replace(`color${oldValue}`, `color${newValue}`);
                 tile2.remove();
