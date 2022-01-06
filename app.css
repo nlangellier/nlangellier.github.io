@@ -35,6 +35,7 @@ body {
 
 #gameContainer #gameBoard {
     background-color: rgb(4, 130, 184);
+    touch-action: none;
     flex-grow: 1;
     width: 100%;
     border-radius: 1%;
