@@ -24,8 +24,9 @@ class Game2048 {
         this.columnSelector = document.getElementById("columnSelector");
 
         this.newGameButton = document.getElementById("newGameButton");
-        this.newGameEvent = this.newGame.bind(this);
-        this.newGameButton.addEventListener("click", this.newGameEvent);
+        this.newGameButton.addEventListener("click", this.newGame.bind(this));
+
+        this.isAvailable = {};
 
         this.slideEvents = {
             up: this.slideUpEvent.bind(this),
@@ -33,6 +34,14 @@ class Game2048 {
             left: this.slideLeftEvent.bind(this),
             right: this.slideRightEvent.bind(this),
         };
+
+        this.touchX0 = 0;
+        this.touchX1 = 0;
+        this.touchY0 = 0;
+        this.touchY1 = 0;
+        this.board.addEventListener('touchstart', this.touchStartEvent.bind(this));
+        this.board.addEventListener('touchend', this.touchEndEvent.bind(this));
+
         this.newGame();
     }
 
@@ -124,8 +133,12 @@ class Game2048 {
             ))
             const tilesCanSlide = idxFirstNull >= 0 && idxFirstTileAfterFirstNull >= 0;
 
-            if (tilesCanSlide || tiles.some(this.hasAdjacentMatchingTile)) return true;
+            if (tilesCanSlide || tiles.some(this.hasAdjacentMatchingTile)) {
+                this.isAvailable[direction] = true;
+                return true;
+            }
         }
+        this.isAvailable[direction] = false;
         return false;
     }
 
@@ -243,6 +256,33 @@ class Game2048 {
 
     slideRightEvent(event) {
         if (event.code === 'ArrowRight' || event.code === 'KeyD') this.slideTiles('right');
+    }
+
+    touchStartEvent(event) {
+        this.touchX0 = event.changedTouches[0].screenX;
+        this.touchY0 = event.changedTouches[0].screenY;
+    }
+
+    touchEndEvent(event) {
+        this.touchX1 = event.changedTouches[0].screenX;
+        this.touchY1 = event.changedTouches[0].screenY;
+
+        const dX = this.touchX1 - this.touchX0;
+        const dY = this.touchY0 - this.touchY1;
+        if (Math.hypot(dX, dY) < 10) return;
+
+        const theta = Math.atan2(dY, dX);
+        if (theta < -3 * Math.PI / 4 && this.isAvailable['left']) {
+            this.slideTiles('left');
+        } else if (theta < -Math.PI / 4 && this.isAvailable['down']) {
+            this.slideTiles('down');
+        } else if (theta < Math.PI / 4 && this.isAvailable['right']) {
+            this.slideTiles('right');
+        } else if (theta < 3 * Math.PI / 4 && this.isAvailable['up']) {
+            this.slideTiles('up');
+        } else if (this.isAvailable['left']) {
+            this.slideTiles('left');
+        }
     }
 }
 
