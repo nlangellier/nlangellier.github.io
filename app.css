@@ -223,6 +223,74 @@ body {
     background-color: rgb(0, 255, 0, 1.00);
 }
 
+#gameContainer #gameBoard #tiles .tile.value4096 {
+    background-color: rgb(150, 255, 0, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value8192 {
+    background-color: rgb(200, 255, 0, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value16384 {
+    background-color: rgb(255, 255, 0, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value32768 {
+    background-color: rgb(255, 255, 100, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value65536 {
+    background-color: rgb(255, 255, 150, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value131072 {
+    background-color: rgb(255, 255, 200, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value262144 {
+    background-color: rgb(255, 255, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value524288 {
+    background-color: rgb(255, 200, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value1048576 {
+    background-color: rgb(255, 150, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value2097152 {
+    background-color: rgb(255, 100, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value4194304 {
+    background-color: rgb(255, 50, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value8388608 {
+    background-color: rgb(255, 0, 255, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value16777216 {
+    background-color: rgb(255, 0, 200, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value33554432 {
+    background-color: rgb(255, 0, 150, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value67108864 {
+    background-color: rgb(255, 0, 100, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value134217728 {
+    background-color: rgb(255, 0, 50, 1.00);
+}
+
+#gameContainer #gameBoard #tiles .tile.value268435456 {
+    background-color: rgb(255, 0, 0, 1.00);
+}
+
 /* ################## HEIGHTS & WIDTHS ################## */
 
 #gameContainer #gameBoard.rows3 #tiles .tile {
