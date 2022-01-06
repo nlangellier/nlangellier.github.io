@@ -178,9 +178,12 @@ class Game2048 {
         const newValue = 2 * oldValue;
         this.score += newValue;
         tile2.addEventListener('transitionend', () => {
-            tile1.innerText = newValue.toLocaleString();
-            tile1.classList.replace(`value${oldValue}`, `value${newValue}`);
-            tile2.remove();
+            tile2.addEventListener('animationend', () => {
+                tile2.remove();
+                tile1.innerText = newValue.toLocaleString();
+                tile1.classList.replace(`value${oldValue}`, `value${newValue}`);
+            })
+            tile2.classList.add('mergeAnimation');
         })
         const oldRow = tile2.rowIdx + 1;
         const newRow = tile1.newRowIdx + 1;
