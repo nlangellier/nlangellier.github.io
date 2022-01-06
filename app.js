@@ -181,7 +181,8 @@ class Game2048 {
             tile2.addEventListener('animationend', () => {
                 tile2.remove();
                 tile1.innerText = newValue.toLocaleString();
-                tile1.classList.replace(`value${oldValue}`, `value${newValue}`);
+                const newClass = newValue > 268435456 ? "value268435456" : `value${newValue}`;
+                tile1.classList.replace(`value${oldValue}`, newClass);
             })
             tile2.classList.add('mergeAnimation');
         })
