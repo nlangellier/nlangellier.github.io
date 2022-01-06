@@ -15,11 +15,17 @@ function random2DIndexOf(array2D, searchElement) {
 };
 
 class Game2048 {
-    constructor(rows, columns) {
+    constructor() {
         this.board = document.getElementById('gameBoard');
         this.grid = document.getElementById('grid');
         this.tileContainer = document.getElementById('tiles');
         this.scoreBoard = document.getElementById("score");
+        this.rowSelector = document.getElementById("rowSelector");
+        this.columnSelector = document.getElementById("columnSelector");
+
+        this.newGameButton = document.getElementById("newGameButton");
+        this.newGameEvent = this.newGame.bind(this);
+        this.newGameButton.addEventListener("click", this.newGameEvent);
 
         this.slideEvents = {
             up: this.slideUpEvent.bind(this),
@@ -27,16 +33,17 @@ class Game2048 {
             left: this.slideLeftEvent.bind(this),
             right: this.slideRightEvent.bind(this),
         };
-        this.newGame(rows, columns);
+        this.newGame();
     }
 
     getEmptyMatrix() {
         return Array.from({length: this.rows}, () => Array(this.columns).fill(null));
     }
 
-    newGame(rows, columns) {
+    newGame() {
         this.score = 0;
-        this.initializeBoard(rows, columns);
+        this.updateScoreBoard();
+        this.initializeBoard();
         this.addNewTile();
         this.addNewTile();
         this.setAvailableMoves();
@@ -68,9 +75,9 @@ class Game2048 {
         this.createNewGridElement('gridEdge', this.grid);
     }
 
-    initializeBoard(rows, columns) {
-        this.rows = rows;
-        this.columns = columns;
+    initializeBoard() {
+        this.rows = parseInt(this.rowSelector.value);
+        this.columns = parseInt(this.columnSelector.value);
         this.tiles = this.getEmptyMatrix();
 
         this.initializeGrid();
@@ -81,7 +88,7 @@ class Game2048 {
         this.board.classList.add(`rows${this.rows}`, `columns${this.columns}`);
     }
 
-    updateScore() {
+    updateScoreBoard() {
         this.scoreBoard.innerText = this.score.toLocaleString();
     }
 
@@ -213,7 +220,7 @@ class Game2048 {
     slideTiles(direction) {
         this.computeTileShifts(direction);
         this.moveTiles();
-        this.updateScore();
+        this.updateScoreBoard();
         this.addNewTile();
         this.setAvailableMoves();
     }
