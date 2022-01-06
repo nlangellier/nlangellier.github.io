@@ -1,3 +1,5 @@
+/* ################## GLOBAL STYLES ################## */
+
 * {
     font-family: 'Ubuntu', sans-serif;
 }
@@ -16,18 +18,21 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: center;
 }
 
 #gameContainer h1 {
     color: rgb(255, 255, 255, 0.75);
     height: 40px;
     margin: 0;
-    text-align: center;
 }
+
+/* ################## GAME BOARD ################## */
 
 #gameContainer #gameBoard {
     background-color: rgb(4, 130, 184);
     flex-grow: 1;
+    width: 100%;
     border-radius: 1%;
     position: relative;
     z-index: 0;
@@ -39,12 +44,220 @@ body {
     height: 100%;
 }
 
+#gameContainer #gameBoard.rows2.columns3 {
+    flex-grow: calc(2 / 3);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows2.columns4 {
+    flex-grow: calc(2 / 4);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows2.columns5 {
+    flex-grow: calc(2 / 5);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows2.columns6 {
+    flex-grow: calc(2 / 6);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows2.columns7 {
+    flex-grow: calc(2 / 7);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows2.columns8 {
+    flex-grow: calc(2 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows3.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 3);
+}
+
+#gameContainer #gameBoard.rows3.columns4 {
+    flex-grow: calc(3 / 4);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows3.columns5 {
+    flex-grow: calc(3 / 5);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows3.columns6 {
+    flex-grow: calc(3 / 6);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows3.columns7 {
+    flex-grow: calc(3 / 7);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows3.columns8 {
+    flex-grow: calc(3 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows4.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 4);
+}
+
+#gameContainer #gameBoard.rows4.columns3 {
+    flex-grow: 1;
+    width: calc(100% * 3 / 4);
+}
+
+#gameContainer #gameBoard.rows4.columns5 {
+    flex-grow: calc(4 / 5);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows4.columns6 {
+    flex-grow: calc(4 / 6);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows4.columns7 {
+    flex-grow: calc(4 / 7);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows4.columns8 {
+    flex-grow: calc(4 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows5.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 5);
+}
+
+#gameContainer #gameBoard.rows5.columns3 {
+    flex-grow: 1;
+    width: calc(100% * 3 / 5);
+}
+
+#gameContainer #gameBoard.rows5.columns4 {
+    flex-grow: 1;
+    width: calc(100% * 4 / 5);
+}
+
+#gameContainer #gameBoard.rows5.columns6 {
+    flex-grow: calc(5 / 6);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows5.columns7 {
+    flex-grow: calc(5 / 7);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows5.columns8 {
+    flex-grow: calc(5 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows6.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 6);
+}
+
+#gameContainer #gameBoard.rows6.columns3 {
+    flex-grow: 1;
+    width: calc(100% * 3 / 6);
+}
+
+#gameContainer #gameBoard.rows6.columns4 {
+    flex-grow: 1;
+    width: calc(100% * 4 / 6);
+}
+
+#gameContainer #gameBoard.rows6.columns5 {
+    flex-grow: 1;
+    width: calc(100% * 5 / 6);
+}
+
+#gameContainer #gameBoard.rows6.columns7 {
+    flex-grow: calc(6 / 7);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows6.columns8 {
+    flex-grow: calc(6 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows7.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 7);
+}
+
+#gameContainer #gameBoard.rows7.columns3 {
+    flex-grow: 1;
+    width: calc(100% * 3 / 7);
+}
+
+#gameContainer #gameBoard.rows7.columns4 {
+    flex-grow: 1;
+    width: calc(100% * 4 / 7);
+}
+
+#gameContainer #gameBoard.rows7.columns5 {
+    flex-grow: 1;
+    width: calc(100% * 5 / 7);
+}
+
+#gameContainer #gameBoard.rows7.columns6 {
+    flex-grow: 1;
+    width: calc(100% * 6 / 7);
+}
+
+#gameContainer #gameBoard.rows7.columns8 {
+    flex-grow: calc(7 / 8);
+    width: 100%;
+}
+
+#gameContainer #gameBoard.rows8.columns2 {
+    flex-grow: 1;
+    width: calc(100% * 2 / 8);
+}
+
+#gameContainer #gameBoard.rows8.columns3 {
+    flex-grow: 1;
+    width: calc(100% * 3 / 8);
+}
+
+#gameContainer #gameBoard.rows8.columns4 {
+    flex-grow: 1;
+    width: calc(100% * 4 / 8);
+}
+
+#gameContainer #gameBoard.rows8.columns5 {
+    flex-grow: 1;
+    width: calc(100% * 5 / 8);
+}
+
+#gameContainer #gameBoard.rows8.columns6 {
+    flex-grow: 1;
+    width: calc(100% * 6 / 8);
+}
+
+#gameContainer #gameBoard.rows8.columns7 {
+    flex-grow: 1;
+    width: calc(100% * 7 / 8);
+}
+
 /* ################## GRID CONTAINER ################## */
 
 #gameContainer #gameBoard #grid {
     position: absolute;
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
