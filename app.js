@@ -23,23 +23,16 @@ class Game2048 {
         this.rowSelector = document.getElementById("rowSelector");
         this.columnSelector = document.getElementById("columnSelector");
         this.gameOverMessage = document.getElementById("gameOverMessage");
-
         this.newGameButton = document.getElementById("newGameButton");
-        this.newGameButton.addEventListener("click", this.newGame.bind(this));
 
-        this.isAvailable = {};
-
-        this.slideEvents = {
-            up: this.slideUpEvent.bind(this),
-            down: this.slideDownEvent.bind(this),
-            left: this.slideLeftEvent.bind(this),
-            right: this.slideRightEvent.bind(this),
-        };
-
+        this.isAvailable = {up: false, down: false, left: false, right: false};
         this.touchX0 = 0;
         this.touchX1 = 0;
         this.touchY0 = 0;
         this.touchY1 = 0;
+
+        this.newGameButton.addEventListener("click", this.newGame.bind(this));
+        this.board.addEventListener('keyup', this.keyUpEvent.bind(this));
         this.board.addEventListener('touchstart', this.touchStartEvent.bind(this));
         this.board.addEventListener('touchend', this.touchEndEvent.bind(this));
 
@@ -135,12 +128,8 @@ class Game2048 {
             ))
             const tilesCanSlide = idxFirstNull >= 0 && idxFirstTileAfterFirstNull >= 0;
 
-            if (tilesCanSlide || tiles.some(this.hasAdjacentMatchingTile)) {
-                this.isAvailable[direction] = true;
-                return true;
-            }
+            if (tilesCanSlide || tiles.some(this.hasAdjacentMatchingTile)) return true;
         }
-        this.isAvailable[direction] = false;
         return false;
     }
 
@@ -148,10 +137,10 @@ class Game2048 {
         let gameOver = true;
         for (const direction of ['up', 'down', 'left', 'right']) {
             if (this.isSlideAvailable(direction)) {
+                this.isAvailable[direction] = true;
                 gameOver = false;
-                this.board.addEventListener('keyup', this.slideEvents[direction]);
             } else {
-                this.board.removeEventListener('keyup', this.slideEvents[direction]);
+                this.isAvailable[direction] = false;
             }
         }
         if (gameOver) this.gameOverMessage.classList.add("visibility");
@@ -240,27 +229,26 @@ class Game2048 {
     }
 
     slideTiles(direction) {
-        this.computeTileShifts(direction);
-        this.moveTiles();
-        this.updateScoreBoard();
-        this.addNewTile();
-        this.setAvailableMoves();
+        if (this.isAvailable[direction]) {
+            this.isAvailable = {up: false, down: false, left: false, right: false};
+            this.computeTileShifts(direction);
+            this.moveTiles();
+            this.updateScoreBoard();
+            this.addNewTile();
+            this.setAvailableMoves();
+        }
     }
 
-    slideUpEvent(event) {
-        if (event.code === 'ArrowUp' || event.code === 'KeyW') this.slideTiles('up');
-    }
-
-    slideDownEvent(event) {
-        if (event.code === 'ArrowDown' || event.code === 'KeyS') this.slideTiles('down');
-    }
-
-    slideLeftEvent(event) {
-        if (event.code === 'ArrowLeft' || event.code === 'KeyA') this.slideTiles('left');
-    }
-
-    slideRightEvent(event) {
-        if (event.code === 'ArrowRight' || event.code === 'KeyD') this.slideTiles('right');
+    keyUpEvent(event) {
+        if (event.code === 'ArrowUp' || event.code === 'KeyW') {
+            this.slideTiles('up');
+        } else if (event.code === 'ArrowDown' || event.code === 'KeyS') {
+            this.slideTiles('down');
+        } else if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
+            this.slideTiles('left');
+        } else if (event.code === 'ArrowRight' || event.code === 'KeyD') {
+            this.slideTiles('right');
+        }
     }
 
     touchStartEvent(event) {
@@ -277,18 +265,18 @@ class Game2048 {
         if (Math.hypot(dX, dY) < 10) return;
 
         const theta = Math.atan2(dY, dX);
-        if (theta < -3 * Math.PI / 4 && this.isAvailable['left']) {
+        if (theta < -3 * Math.PI / 4) {
             this.slideTiles('left');
-        } else if (theta < -Math.PI / 4 && this.isAvailable['down']) {
+        } else if (theta < -Math.PI / 4) {
             this.slideTiles('down');
-        } else if (theta < Math.PI / 4 && this.isAvailable['right']) {
+        } else if (theta < Math.PI / 4) {
             this.slideTiles('right');
-        } else if (theta < 3 * Math.PI / 4 && this.isAvailable['up']) {
+        } else if (theta < 3 * Math.PI / 4) {
             this.slideTiles('up');
-        } else if (this.isAvailable['left']) {
+        } else {
             this.slideTiles('left');
         }
     }
 }
 
-const game2048 = new Game2048(4, 4);
+const game2048 = new Game2048();
