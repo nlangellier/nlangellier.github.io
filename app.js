@@ -22,6 +22,7 @@ class Game2048 {
         this.scoreBoard = document.getElementById("score");
         this.rowSelector = document.getElementById("rowSelector");
         this.columnSelector = document.getElementById("columnSelector");
+        this.gameOverMessage = document.getElementById("gameOverMessage");
 
         this.newGameButton = document.getElementById("newGameButton");
         this.newGameButton.addEventListener("click", this.newGame.bind(this));
@@ -52,6 +53,7 @@ class Game2048 {
     newGame() {
         this.score = 0;
         this.updateScoreBoard();
+        this.gameOverMessage.classList.remove("visibility");
         this.initializeBoard();
         this.addNewTile();
         this.addNewTile();
@@ -143,13 +145,16 @@ class Game2048 {
     }
 
     setAvailableMoves() {
+        let gameOver = true;
         for (const direction of ['up', 'down', 'left', 'right']) {
             if (this.isSlideAvailable(direction)) {
+                gameOver = false;
                 this.board.addEventListener('keyup', this.slideEvents[direction]);
             } else {
                 this.board.removeEventListener('keyup', this.slideEvents[direction]);
             }
         }
+        if (gameOver) this.gameOverMessage.classList.add("visibility");
     }
 
     computeTileShifts(direction) {

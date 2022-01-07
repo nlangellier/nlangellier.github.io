@@ -43,12 +43,6 @@ body {
     z-index: 0;
 }
 
-#gameContainer #gameBoard .container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
 #gameContainer #gameBoard.rows3.columns4 {
     flex-grow: calc(3 / 4);
     width: 100%;
@@ -109,13 +103,18 @@ body {
     width: calc(100% * 5 / 6);
 }
 
-/* ################## GRID CONTAINER ################## */
-
-#gameContainer #gameBoard #grid {
+#gameContainer #gameBoard .container {
     position: absolute;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+}
+
+/* ################## GRID CONTAINER ################## */
+
+#gameContainer #gameBoard #grid {
     z-index: 1;
 }
 
@@ -176,6 +175,24 @@ body {
 
 #gameContainer #gameBoard #tiles .tile.mergeAnimation {
     animation: appear paused, merge 0.2s running;
+}
+
+/* ################## GAME OVER CONTAINER ################## */
+
+#gameContainer #gameBoard #gameOverMessage {
+    z-index: 3;
+    justify-content: center;
+    align-items: center;
+    font-size: 4em;
+    background-color: rgb(255, 255, 255, 0.5);
+    opacity: 0;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
+}
+
+#gameContainer #gameBoard #gameOverMessage.visibility {
+    opacity: 1;
+    transition-duration: 2s;
 }
 
 /* ################## TILE COLORS ################## */
