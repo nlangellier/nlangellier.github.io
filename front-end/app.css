@@ -12,7 +12,7 @@ body {
 
 #gameContainer {
     width: 550px;
-    height: 630px;
+    height: 670px;
     margin: 0 auto;
     position: relative;
     display: flex;
@@ -21,13 +21,13 @@ body {
     align-items: center;
 }
 
-#gameContainer h1, #gameContainer #selectors {
+#gameContainer h1, #gameContainer #selectors, #gameContainer #hintBox {
     color: rgb(255, 255, 255, 0.75);
     height: 40px;
     margin: 0;
 }
 
-#gameContainer #selectors * {
+#gameContainer #selectors *, #gameContainer #hintBox * {
     font-size: 1.5em;
 }
 

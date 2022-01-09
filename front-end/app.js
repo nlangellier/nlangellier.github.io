@@ -24,6 +24,8 @@ class Game2048 {
         this.columnSelector = document.getElementById("columnSelector");
         this.gameOverMessage = document.getElementById("gameOverMessage");
         this.newGameButton = document.getElementById("newGameButton");
+        this.hintButton = document.getElementById("hintButton");
+        this.hintText = document.getElementById("hintText");
 
         this.isAvailable = {up: false, down: false, left: false, right: false};
         this.touchX0 = 0;
@@ -32,6 +34,7 @@ class Game2048 {
         this.touchY1 = 0;
 
         this.newGameButton.addEventListener("click", this.newGame.bind(this));
+        this.hintButton.addEventListener('click', this.getAIHint.bind(this));
         this.board.addEventListener('keyup', this.keyUpEvent.bind(this));
         this.board.addEventListener('touchstart', this.touchStartEvent.bind(this));
         this.board.addEventListener('touchend', this.touchEndEvent.bind(this));
@@ -230,6 +233,7 @@ class Game2048 {
 
     slideTiles(direction) {
         if (this.isAvailable[direction]) {
+            this.hintText.innerText = "";
             this.isAvailable = {up: false, down: false, left: false, right: false};
             this.computeTileShifts(direction);
             this.moveTiles();
@@ -278,18 +282,23 @@ class Game2048 {
         }
     }
 
-    get values() {
-        return {values: this.tiles.map(row => row.map(tile => tile ? Math.log2(tile.value) : 0))};
+    get state() {
+        const log2Values = this.tiles.map(row => row.map(tile => (
+            tile ? Math.log2(tile.value) : 0
+        )));
+        return {values: log2Values};
     }
 
     async getAIHint() {
         const request = new Request("/hint",
                                     {method: "POST",
                                      headers: {"Content-Type": "application/json"},
-                                     body: JSON.stringify(game2048.values)});
+                                     body: JSON.stringify(this.state)});
         const response = await fetch(request);
         const data = await response.json();
-        return data.hint;
+        const hint = data.hint;
+        this.hintText.innerText = hint[0].toUpperCase() + hint.slice(1);
+        this.board.focus();
     }
 }
 
