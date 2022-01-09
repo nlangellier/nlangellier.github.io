@@ -277,6 +277,20 @@ class Game2048 {
             this.slideTiles('left');
         }
     }
+
+    get values() {
+        return {values: this.tiles.map(row => row.map(tile => tile ? Math.log2(tile.value) : 0))};
+    }
+
+    async getAIHint() {
+        const request = new Request("/hint",
+                                    {method: "POST",
+                                     headers: {"Content-Type": "application/json"},
+                                     body: JSON.stringify(game2048.values)});
+        const response = await fetch(request);
+        const data = await response.json();
+        return data.hint;
+    }
 }
 
 const game2048 = new Game2048();

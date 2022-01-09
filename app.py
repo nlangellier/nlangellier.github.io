@@ -1,14 +1,21 @@
+import logging
 import random
-from typing import Union
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from starlette.responses import FileResponse
 
 app = FastAPI()
 app.mount(path='/front-end',
           app=StaticFiles(directory='front-end'),
           name='front-end')
+
+logger = logging.getLogger("uvicorn.error")
+
+
+class GameState(BaseModel):
+    values: list[list[int]]
 
 
 @app.get('/')
@@ -23,20 +30,21 @@ def home() -> FileResponse:
     return FileResponse('front-end/index.html')
 
 
-@app.get('/hint')
-def get_ai_hint(rows: int, columns: int) -> dict[str, Union[str, int]]:
+@app.post('/hint')
+def get_ai_hint(game_state: GameState) -> dict[str, str]:
     """
     Retrieves the next move by the AI model as a hint from a given board state.
 
     Args:
-    - **rows** (int): each item must have a name
-    - **columns** (int): a long description
+    - **game_state** (GameState): The board state. The values correspond to the
+        base 2 logarithm of the text displayed on the tiles. Empty cells are
+        given the value 0.
 
     Returns:
-    - dict[str, Union[str, int]]: the hint and the rows and columns
+        dict[str, str]: The returned hint.
     """
 
-    return {'rows': rows,
-            'columns': columns,
-            'hint': random.choice(['up', 'down', 'left', 'right']),
-            'note': 'This feature is not fully implemented. Hint is random'}
+    game_state = game_state.dict()["values"]
+    logger.info(f'{game_state = }')
+    return {'hint': random.choice(['up', 'down', 'left', 'right']),
+            'note': 'This feature is not yet implemented. The hint is random.'}
