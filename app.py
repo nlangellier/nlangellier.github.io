@@ -2,9 +2,9 @@ import logging
 import random
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from starlette.responses import FileResponse
 
 app = FastAPI()
 app.mount(path='/front-end',
