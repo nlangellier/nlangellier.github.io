@@ -41,7 +41,7 @@ def get_ai_hint(game_state: GameState) -> dict[str, str]:
         given the value 0.
 
     Returns:
-        dict[str, str]: The returned hint.
+    - dict[str, str]: The returned hint.
     """
 
     game_state = game_state.dict()["values"]
