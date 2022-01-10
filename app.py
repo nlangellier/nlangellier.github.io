@@ -1,5 +1,6 @@
 import logging
 import random
+from getpass import getpass
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -12,6 +13,8 @@ app.mount(path='/front-end',
           name='front-end')
 
 logger = logging.getLogger("uvicorn.error")
+
+mongodb_uri = getpass(prompt='MongoDB URI: ')
 
 
 class GameState(BaseModel):
