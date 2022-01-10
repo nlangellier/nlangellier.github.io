@@ -26,6 +26,7 @@ class Game2048 {
         this.newGameButton = document.getElementById("newGameButton");
         this.hintButton = document.getElementById("hintButton");
         this.hintText = document.getElementById("hintText");
+        this.leaderBoard = document.querySelector('#leaderBoard')
 
         this.isAvailable = {up: false, down: false, left: false, right: false};
         this.touchX0 = 0;
@@ -55,6 +56,7 @@ class Game2048 {
         this.addNewTile();
         this.addNewTile();
         this.setAvailableMoves();
+        this.updateLeaderBoardTop10();
     }
 
     getNewGridElement(gridClass, parent) {
@@ -317,6 +319,21 @@ class Game2048 {
                                      headers: {"Content-Type": "application/json"},
                                      body: JSON.stringify(gameOverInfo)});
         await fetch(request);
+    }
+
+    async updateLeaderBoardTop10() {
+        const request = new Request(`/leader-board-top-10?rows=${this.rows}&columns=${this.columns}`,
+                                    {method: "GET",
+                                     headers: {"Content-Type": "application/json"}});
+        const response = await fetch(request);
+        const leaders = await response.json();
+
+        this.leaderBoard.replaceChildren();
+        for (const leader of leaders) {
+            const li = document.createElement('li');
+            li.innerText = `${leader.name} - ${leader.score}`
+            this.leaderBoard.appendChild(li);
+        }
     }
 }
 

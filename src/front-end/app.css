@@ -8,6 +8,12 @@ body {
     background-color: black;
 }
 
+/* ################## LEADER BOARD ################## */
+
+#leaderBoardContainer {
+    color: rgb(255, 255, 255, 0.75);
+}
+
 /* ################## GAME CONTAINER ################## */
 
 #gameContainer {
