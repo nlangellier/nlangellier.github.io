@@ -147,7 +147,10 @@ class Game2048 {
                 this.isAvailable[direction] = false;
             }
         }
-        if (gameOver) this.gameOverMessage.classList.add("visibility");
+        if (gameOver) {
+            this.gameOverMessage.classList.add("visibility");
+            this.postNewScoreToDatabase();
+        }
     }
 
     computeTileShifts(direction) {
@@ -300,6 +303,20 @@ class Game2048 {
         const hint = data.hint;
         this.hintText.innerText = hint[0].toUpperCase() + hint.slice(1);
         this.board.focus();
+    }
+
+    async postNewScoreToDatabase() {
+        const gameOverInfo = {
+            name: "testing",
+            score: this.score,
+            rows: this.rows,
+            columns: this.columns
+        };
+        const request = new Request("/add-score",
+                                    {method: "POST",
+                                     headers: {"Content-Type": "application/json"},
+                                     body: JSON.stringify(gameOverInfo)});
+        await fetch(request);
     }
 }
 
