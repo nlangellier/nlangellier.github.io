@@ -48,6 +48,7 @@ class Game2048 {
 
     newGame() {
         this.score = 0;
+        this.hintText.innerText = "";
         this.updateScoreBoard();
         this.gameOverMessage.classList.remove("visibility");
         this.initializeBoard();
