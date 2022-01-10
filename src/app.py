@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
-from .schemas import GameState, GameOverInfo
+from schemas import GameState, GameOverInfo
 
 app = FastAPI()
 app.mount(path='/front-end',
