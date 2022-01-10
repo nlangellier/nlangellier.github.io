@@ -2,11 +2,12 @@ import logging
 import random
 from getpass import getpass
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
+from constants import MIN_ROWS_COLUMNS, MAX_ROWS_COLUMNS
 from schemas import GameState, GameOverInfo
 
 app = FastAPI()
@@ -69,5 +70,36 @@ def add_score_to_db(game_over_info: GameOverInfo) -> None:
         rows (rows), and columns (int) attributes.
     """
 
-    result = db.leaderBoard.insert_one(game_over_info.dict())
-    logger.info(result.inserted_id)
+    db.leaderBoard.insert_one(game_over_info.dict())
+
+
+@app.get(path='/leader-board-top-10')
+def get_leader_board_top_10(
+        rows: int = Query(default=None,
+                          description='Number of rows of the game board',
+                          ge=MIN_ROWS_COLUMNS,
+                          le=MAX_ROWS_COLUMNS),
+        columns: int = Query(default=None,
+                             description='Number of columns of the game board',
+                             ge=MIN_ROWS_COLUMNS,
+                             le=MAX_ROWS_COLUMNS)
+) -> list[dict[str, str | int]]:
+    """
+    Retrieves the top 10 scores and usernames for a given board size.
+
+    Args:
+    - **rows** (int): Number of rows of the game board.
+    - **columns** (int): Number of columns of the game board.
+
+    Returns:
+    - list[dict[str, str | int]]: List of dictionaries containing the names and
+        scores of the leader board.
+    """
+
+    query_result = db.leaderBoard.aggregate(
+        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
+                  {'$sort': {'score': -1}},
+                  {'$limit': 10},
+                  {'$project': {'_id': False, 'name': True, 'score': True}}]
+    )
+    return list(query_result)

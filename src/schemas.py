@@ -20,7 +20,9 @@ class GameOverInfo(BaseModel):
                        ge=0)
     rows: int = Field(default=None,
                       description='Number of rows of the game board',
-                      ge=MIN_ROWS_COLUMNS, le=MAX_ROWS_COLUMNS)
+                      ge=MIN_ROWS_COLUMNS,
+                      le=MAX_ROWS_COLUMNS)
     columns: int = Field(default=None,
                          description='Number of columns of the game board',
-                         ge=MIN_ROWS_COLUMNS, le=MAX_ROWS_COLUMNS)
+                         ge=MIN_ROWS_COLUMNS,
+                         le=MAX_ROWS_COLUMNS)
