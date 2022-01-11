@@ -7,12 +7,12 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
-from constants import MIN_ROWS_COLUMNS, MAX_ROWS_COLUMNS
-from schemas import GameState, GameOverInfo
+from .constants import MIN_ROWS_COLUMNS, MAX_ROWS_COLUMNS, DIRPATH_FRONT_END
+from .schemas import GameState, GameOverInfo
 
 app = FastAPI()
 app.mount(path='/front-end',
-          app=StaticFiles(directory='front-end'),
+          app=StaticFiles(directory=DIRPATH_FRONT_END),
           name='front-end')
 
 logger = logging.getLogger(name='uvicorn.error')
@@ -37,7 +37,7 @@ def home() -> FileResponse:
     - FileResponse: front-end/index.html
     """
 
-    return FileResponse('front-end/index.html')
+    return FileResponse(DIRPATH_FRONT_END / 'index.html')
 
 
 @app.post(path='/hint')

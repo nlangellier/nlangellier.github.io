@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from constants import MIN_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MAX_ROWS_COLUMNS
+from .constants import MIN_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MAX_ROWS_COLUMNS
 
 
 class GameState(BaseModel):
