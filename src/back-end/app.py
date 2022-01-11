@@ -7,13 +7,17 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
-from .constants import DIRPATH_FRONT_END, MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS
+from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
+                        MIN_ROWS_COLUMNS)
 from .schemas import GameOverInfo, GameState
 
 app = FastAPI()
 app.mount(path='/front-end',
           app=StaticFiles(directory=DIRPATH_FRONT_END),
           name='front-end')
+app.mount(path='/images',
+          app=StaticFiles(directory=DIRPATH_IMAGES),
+          name='images')
 
 logger = logging.getLogger(name='uvicorn.error')
 
