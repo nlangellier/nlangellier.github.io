@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
-from .constants import MIN_ROWS_COLUMNS, MAX_ROWS_COLUMNS, DIRPATH_FRONT_END
-from .schemas import GameState, GameOverInfo
+from .constants import DIRPATH_FRONT_END, MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS
+from .schemas import GameOverInfo, GameState
 
 app = FastAPI()
 app.mount(path='/front-end',
