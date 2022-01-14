@@ -66,13 +66,13 @@ class GameManager:
         return Tile(current_coord=(i, j), next_coord=(i, j),
                     value=value, is_new=True)
 
-    # @property
-    # def rows(self) -> int:
-    #     return self.state.shape[0]
-    # 
-    # @property
-    # def columns(self) -> int:
-    #     return self.state.shape[1]
+    @property
+    def rows(self) -> int:
+        return self.state.shape[0]
+
+    @property
+    def columns(self) -> int:
+        return self.state.shape[1]
 
     def move_is_available(self, direction: str) -> bool:
         rotated_state = np.rot90(self.state, k=self.num_rotations[direction])
@@ -103,10 +103,11 @@ class GameManager:
 
         return available_moves
 
-    def get_new_tiles_left(self) -> list[Tile]:
+    @staticmethod
+    def get_tiles_from_left_shift(state: np.ndarray) -> list[Tile]:
         tiles = []
 
-        for i, row in enumerate(self.state):
+        for i, row in enumerate(state):
             next_col = 0
             prev_tile: Tile | None = None
 
@@ -132,6 +133,39 @@ class GameManager:
 
         return tiles
 
+    def get_tiles_from_right_shift(self, state: np.ndarray) -> list[Tile]:
+        flipped_state = np.fliplr(state)
+        tiles = self.get_tiles_from_left_shift(flipped_state)
+        for tile in tiles:
+            i, j = tile.current_coord
+            tile.current_coord = (i, self.columns - j - 1)
+            i, j = tile.next_coord
+            tile.next_coord = (i, self.columns - j - 1)
+
+        return tiles
+
+    def get_tiles_from_up_shift(self, state: np.ndarray) -> list[Tile]:
+        transposed_state = np.transpose(state)
+        tiles = self.get_tiles_from_left_shift(transposed_state)
+        for tile in tiles:
+            i, j = tile.current_coord
+            tile.current_coord = (j, i)
+            i, j = tile.next_coord
+            tile.next_coord = (j, i)
+
+        return tiles
+
+    def get_tiles_from_down_shift(self, state: np.ndarray) -> list[Tile]:
+        flipped_state = np.flipud(state)
+        tiles = self.get_tiles_from_up_shift(flipped_state)
+        for tile in tiles:
+            i, j = tile.current_coord
+            tile.current_coord = (self.rows - i - 1, j)
+            i, j = tile.next_coord
+            tile.next_coord = (self.rows - i - 1, j)
+
+        return tiles
+
     def update_state(self, tiles: list[Tile]) -> None:
         new_state = np.zeros_like(self.state)
 
@@ -145,7 +179,15 @@ class GameManager:
     def move(self, direction: str) -> list[Tile]:
         if self.move_is_available(direction):
             if direction == 'left':
-                tiles = self.get_new_tiles_left()
+                tiles = self.get_tiles_from_left_shift(self.state)
+            elif direction == 'right':
+                tiles = self.get_tiles_from_right_shift(self.state)
+            elif direction == 'up':
+                tiles = self.get_tiles_from_up_shift(self.state)
+            elif direction == 'down':
+                tiles = self.get_tiles_from_down_shift(self.state)
+            else:
+                raise ValueError(f'Invalid direction: {direction}')
 
             self.update_state(tiles)
             self.move_history.append(direction)
