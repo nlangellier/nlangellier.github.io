@@ -9,7 +9,9 @@ from pymongo import MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
                         MIN_ROWS_COLUMNS)
-from .schemas import GameOverInfo, GameState
+from .game_manager import GameManager
+from .schemas import (Direction, GameOverInfo, GameState, GameStateResponse,
+                      NewGameResponse)
 
 app = FastAPI()
 app.mount(path='/front-end',
@@ -31,6 +33,8 @@ mongo_client = MongoClient(host='localhost',
                            authMechanism='SCRAM-SHA-256')
 db = mongo_client['2048Infinite']
 
+active_games: dict[int, GameManager] = {}
+
 
 @app.get(path='/')
 def home() -> FileResponse:
@@ -42,6 +46,32 @@ def home() -> FileResponse:
     """
 
     return FileResponse(DIRPATH_FRONT_END / 'index.html')
+
+
+@app.get(path='/new-game', response_model=NewGameResponse)
+def new_game(
+        rows: int = Query(default=None,
+                          description='Number of rows of the game board',
+                          ge=MIN_ROWS_COLUMNS,
+                          le=MAX_ROWS_COLUMNS),
+        columns: int = Query(default=None,
+                             description='Number of columns of the game board',
+                             ge=MIN_ROWS_COLUMNS,
+                             le=MAX_ROWS_COLUMNS)
+) -> NewGameResponse:
+
+    uuid = 1
+    active_games[uuid] = GameManager(rows=rows, columns=columns)
+    return NewGameResponse(uuid=uuid,
+                           tiles=active_games[uuid].initial_tiles,
+                           available_moves=active_games[uuid].available_moves)
+
+
+@app.get(path='/move', response_model=GameStateResponse)
+def move_tiles(uuid: int, direction: Direction) -> GameStateResponse:
+    tiles = active_games[uuid].move(direction)
+    available_moves = active_games[uuid].available_moves
+    return GameStateResponse(tiles=tiles, available_moves=available_moves)
 
 
 @app.post(path='/hint')
