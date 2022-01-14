@@ -1,3 +1,5 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
 
 from .constants import MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS
@@ -14,9 +16,13 @@ class Tile(BaseModel):
                                         description='Next coordinates',
                                         min_items=2, max_items=2,
                                         ge=0, lt=MAX_ROWS_COLUMNS)
-    value: int = Field(default=None)
-    is_merged: bool = Field(default=False)
-    is_new: bool = Field(default=False)
+    value: int = Field(default=None,
+                       description='Log base 2 of tile text',
+                       ge=0)
+    is_merged: bool = Field(default=False,
+                            description='Whether the tile is merged')
+    is_new: bool = Field(default=False,
+                         description='Whether the tile is new')
 
     def merge_with(self, other: 'Tile') -> None:
         self.is_merged = True
@@ -28,6 +34,20 @@ class Tile(BaseModel):
                    next_coord=other.next_coord,
                    value=other.value + 1,
                    is_new=True)
+
+
+class Direction(str, Enum):
+    left = 'left'
+    up = 'up'
+    right = 'right'
+    down = 'down'
+
+
+class GameStateResponse(BaseModel):
+    tiles: list[Tile] = Field(default=None,
+                              description='List of tiles')
+    available_moves: list[Direction] = Field(default=None,
+                                             description='List of moves')
 
 
 class GameState(BaseModel):
