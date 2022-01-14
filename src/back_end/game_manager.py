@@ -16,8 +16,9 @@ class GameManager:
         self.score = 0
 
         self.state = np.zeros(shape=(rows, columns), dtype=np.uint8)
-        self.create_new_tile()
-        self.create_new_tile()
+        tile0 = self.create_new_tile()
+        tile1 = self.create_new_tile()
+        self.initial_tiles = [tile0, tile1]
 
     @classmethod
     def from_state(cls,
