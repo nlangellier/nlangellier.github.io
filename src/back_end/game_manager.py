@@ -1,30 +1,7 @@
-from dataclasses import dataclass
-
 import numpy as np
 
 from .constants import NEW_TILE_PROBABILITIES, NEW_TILE_VALUES
-
-TileCoordinates = tuple[int, int]
-
-
-@dataclass
-class Tile:
-    current_coord: TileCoordinates
-    next_coord: TileCoordinates
-    value: int
-    is_merged: bool = False
-    is_new: int = False
-
-    def merge_with(self, other: 'Tile') -> None:
-        self.is_merged = True
-        other.is_merged = True
-
-    @classmethod
-    def new_from(cls, other: 'Tile') -> 'Tile':
-        return cls(current_coord=other.next_coord,
-                   next_coord=other.next_coord,
-                   value=other.value + 1,
-                   is_new=True)
+from .schemas import Tile, TileCoordinates
 
 
 class GameManager:
