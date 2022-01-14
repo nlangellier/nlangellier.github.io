@@ -67,7 +67,7 @@ def new_game(
                            available_moves=active_games[uuid].available_moves)
 
 
-@app.get(path='/move', response_model=GameStateResponse)
+@app.get(path='/move-tiles', response_model=GameStateResponse)
 def move_tiles(uuid: int, direction: Direction) -> GameStateResponse:
     tiles = active_games[uuid].move(direction)
     available_moves = active_games[uuid].available_moves
