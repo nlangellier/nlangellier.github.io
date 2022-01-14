@@ -9,10 +9,8 @@ TileCoordinates = tuple[int, int]
 
 @dataclass
 class Tile:
-    current_row: int
-    current_col: int
-    next_row: int
-    next_col: int
+    current_coord: TileCoordinates
+    next_coord: TileCoordinates
     value: int | None = None
     is_merged: bool = False
     is_new: int = False
@@ -23,10 +21,8 @@ class Tile:
 
     @classmethod
     def new_from(cls, other: 'Tile') -> 'Tile':
-        return cls(current_row=other.next_row,
-                   current_col=other.next_col,
-                   next_row=other.next_row,
-                   next_col=other.next_col,
+        return cls(current_coord=other.next_coord,
+                   next_coord=other.next_coord,
                    value=other.value + 1,
                    is_new=True)
 
@@ -66,8 +62,8 @@ class GameManager:
         value: int = self.rng.choice(NEW_TILE_VALUES, p=NEW_TILE_PROBABILITIES)
         self.state[i, j] = value
         self.tile_creation_history.append((i, j))
-        return Tile(current_row=i, current_col=j,
-                    next_row=i, next_col=j,
+
+        return Tile(current_coord=(i, j), next_coord=(i, j),
                     value=value, is_new=True)
 
     # @property
@@ -118,8 +114,8 @@ class GameManager:
                 if cell_value == 0:
                     continue
 
-                current_tile = Tile(current_row=i, current_col=j,
-                                    next_row=i, next_col=next_col,
+                current_tile = Tile(current_coord=(i, j),
+                                    next_coord=(i, next_col),
                                     value=cell_value)
 
                 if prev_tile is None or current_tile.value != prev_tile.value:
@@ -128,7 +124,7 @@ class GameManager:
                     prev_tile = current_tile
 
                 else:
-                    current_tile.next_col = prev_tile.next_col
+                    current_tile.next_coord = prev_tile.next_coord
                     prev_tile.merge_with(current_tile)
                     new_tile = Tile.new_from(current_tile)
                     tiles.extend([current_tile, new_tile])
@@ -142,8 +138,7 @@ class GameManager:
         for tile in tiles:
             if tile.is_merged:
                 continue
-
-            new_state[tile.next_row, tile.next_col] = tile.value
+            new_state[tile.next_coord] = tile.value
 
         self.state = new_state
 
