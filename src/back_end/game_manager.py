@@ -11,7 +11,7 @@ TileCoordinates = tuple[int, int]
 class Tile:
     current_coord: TileCoordinates
     next_coord: TileCoordinates
-    value: int | None = None
+    value: int
     is_merged: bool = False
     is_new: int = False
 
