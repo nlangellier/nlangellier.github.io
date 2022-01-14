@@ -44,10 +44,13 @@ class Direction(str, Enum):
 
 
 class GameStateResponse(BaseModel):
-    tiles: list[Tile] = Field(default=None,
-                              description='List of tiles')
+    tiles: list[Tile] = Field(default=None, description='List of tiles')
     available_moves: list[Direction] = Field(default=None,
                                              description='List of moves')
+
+
+class NewGameResponse(GameStateResponse):
+    uuid: int = Field(default=None, description='Game ID')
 
 
 class GameState(BaseModel):
