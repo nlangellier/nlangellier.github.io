@@ -38,9 +38,9 @@ class GameManager:
         i, j = self.rng.choice(indices_of_empty_cells)
         value: int = self.rng.choice(NEW_TILE_VALUES, p=NEW_TILE_PROBABILITIES)
         self.state[i, j] = value
-        self.tile_creation_history.append((i, j))
+        self.tile_creation_history.append([i, j])
 
-        return Tile(current_coord=(i, j), next_coord=(i, j),
+        return Tile(current_coord=[i, j], next_coord=[i, j],
                     value=value, is_new=True)
 
     @property
@@ -92,8 +92,8 @@ class GameManager:
                 if cell_value == 0:
                     continue
 
-                current_tile = Tile(current_coord=(i, j),
-                                    next_coord=(i, next_col),
+                current_tile = Tile(current_coord=[i, j],
+                                    next_coord=[i, next_col],
                                     value=cell_value)
                 tiles.append(current_tile)
 

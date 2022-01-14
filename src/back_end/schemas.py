@@ -2,15 +2,21 @@ from pydantic import BaseModel, Field
 
 from .constants import MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS
 
-TileCoordinates = tuple[int, int]
+TileCoordinates = list[int]
 
 
 class Tile(BaseModel):
-    current_coord: TileCoordinates
-    next_coord: TileCoordinates
-    value: int
-    is_merged: bool = False
-    is_new: int = False
+    current_coord: TileCoordinates = Field(default=None,
+                                           description='Current coordinates',
+                                           min_items=2, max_items=2,
+                                           ge=0, lt=MAX_ROWS_COLUMNS)
+    next_coord: TileCoordinates = Field(default=None,
+                                        description='Next coordinates',
+                                        min_items=2, max_items=2,
+                                        ge=0, lt=MAX_ROWS_COLUMNS)
+    value: int = Field(default=None)
+    is_merged: bool = Field(default=False)
+    is_new: bool = Field(default=False)
 
     def merge_with(self, other: 'Tile') -> None:
         self.is_merged = True
