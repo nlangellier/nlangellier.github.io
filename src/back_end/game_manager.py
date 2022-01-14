@@ -117,9 +117,9 @@ class GameManager:
                 current_tile = Tile(current_coord=(i, j),
                                     next_coord=(i, next_col),
                                     value=cell_value)
+                tiles.append(current_tile)
 
                 if prev_tile is None or current_tile.value != prev_tile.value:
-                    tiles.append(current_tile)
                     next_col += 1
                     prev_tile = current_tile
 
@@ -127,7 +127,7 @@ class GameManager:
                     current_tile.next_coord = prev_tile.next_coord
                     prev_tile.merge_with(current_tile)
                     new_tile = Tile.new_from(current_tile)
-                    tiles.extend([current_tile, new_tile])
+                    tiles.append(new_tile)
                     prev_tile = None
 
         return tiles
