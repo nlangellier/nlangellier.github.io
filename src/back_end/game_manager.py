@@ -150,7 +150,7 @@ class GameManager:
         for tile in tiles:
             if tile.is_merged:
                 continue
-            new_state[tile.next_coord] = tile.value
+            new_state[tuple(tile.next_coord)] = tile.value
 
         self.state = new_state
 
