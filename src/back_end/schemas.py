@@ -1,57 +1,28 @@
-from enum import Enum
-
 from pydantic import BaseModel, Field
 
 from .constants import MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS
 
-TileCoordinates = list[int]
-
 
 class Tile(BaseModel):
-    current_coord: TileCoordinates = Field(default=...,
-                                           description='Current coordinates',
-                                           min_items=2, max_items=2,
-                                           ge=0, lt=MAX_ROWS_COLUMNS)
-    next_coord: TileCoordinates = Field(default=...,
-                                        description='Next coordinates',
-                                        min_items=2, max_items=2,
-                                        ge=0, lt=MAX_ROWS_COLUMNS)
+    coordinates: list[int] = Field(default=...,
+                                   description='Tile coordinates',
+                                   min_items=2, max_items=2,
+                                   ge=0, lt=MAX_ROWS_COLUMNS)
     value: int = Field(default=...,
                        description='Log base 2 of tile text',
-                       ge=0)
-    is_merged: bool = Field(default=False,
-                            description='Whether the tile is merged')
-    is_new: bool = Field(default=False,
-                         description='Whether the tile is new')
-
-    def merge_with(self, other: 'Tile') -> None:
-        self.is_merged = True
-        other.is_merged = True
-
-    @classmethod
-    def new_from(cls, other: 'Tile') -> 'Tile':
-        return cls(current_coord=other.next_coord,
-                   next_coord=other.next_coord,
-                   value=other.value + 1,
-                   is_new=True)
+                       ge=1)
 
 
-class Direction(str, Enum):
-    left = 'left'
-    up = 'up'
-    right = 'right'
-    down = 'down'
-
-
-class GameStateResponse(BaseModel):
-    score: int = Field(default=..., description='Current game score', ge=0)
-    tiles: list[Tile] = Field(default=..., description='List of tiles')
-    available_moves: list[Direction] = Field(default=...,
-                                             description='List of moves')
-
-
-class NewGameResponse(GameStateResponse):
+class NewGameResponse(BaseModel):
     uuid: int = Field(default=..., description='Game ID')
+    startingTiles: list[Tile] = Field(default=...,
+                                      description='List of starting tiles',
+                                      min_items=2, max_items=2)
+
+
+class MoveResponse(BaseModel):
+    score: int = Field(default=..., description='Current game score', ge=0)
+    nextTile: Tile = Field(default=..., description='New tile after move')
 
 
 class GameState(BaseModel):

@@ -8,10 +8,9 @@ from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
-                        MIN_ROWS_COLUMNS)
+                        MIN_ROWS_COLUMNS, Direction)
 from .game_manager import GameManager
-from .schemas import (Direction, GameOverInfo, GameState, GameStateResponse,
-                      NewGameResponse)
+from .schemas import GameOverInfo, GameState, MoveResponse, NewGameResponse
 
 app = FastAPI()
 app.mount(path='/front-end',
@@ -62,20 +61,16 @@ def new_game(
 
     uuid = 1
     active_games[uuid] = GameManager(rows=rows, columns=columns)
-    return NewGameResponse(uuid=uuid,
-                           score=active_games[uuid].score,
-                           tiles=active_games[uuid].initial_tiles,
-                           available_moves=active_games[uuid].available_moves)
+    starting_tiles = active_games[uuid].tile_creation_history
+    return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
 
 
-@app.get(path='/move-tiles', response_model=GameStateResponse)
-def move_tiles(uuid: int, direction: Direction) -> GameStateResponse:
-    tiles = active_games[uuid].move(direction)
-    score = active_games[uuid].score
-    available_moves = active_games[uuid].available_moves
-    return GameStateResponse(score=score,
-                             tiles=tiles,
-                             available_moves=available_moves)
+@app.get(path='/move-tiles', response_model=MoveResponse)
+def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
+    active_games[uuid].move_tiles(direction)
+    active_games[uuid].create_new_tile()
+    return MoveResponse(score=active_games[uuid].score,
+                        nextTile=active_games[uuid].tile_creation_history[-1])
 
 
 @app.post(path='/hint')

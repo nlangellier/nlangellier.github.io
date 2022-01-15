@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 
 DIRPATH_REPO = Path(__file__).parent.parent.parent
@@ -11,3 +12,10 @@ MAX_USERNAME_LENGTH = 50
 
 NEW_TILE_VALUES = [1, 2]
 NEW_TILE_PROBABILITIES = [0.9, 0.1]
+
+
+class Direction(str, Enum):
+    left = 'left'
+    up = 'up'
+    right = 'right'
+    down = 'down'
