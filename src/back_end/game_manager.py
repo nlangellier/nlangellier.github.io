@@ -44,7 +44,6 @@ class GameManager:
         return False
 
     def get_state_from_left_shift(self, state: np.ndarray) -> np.ndarray:
-        next_state = np.zeros_like(state)
 
         for i, row in enumerate(state):
             j = 0
@@ -55,15 +54,18 @@ class GameManager:
                     continue
 
                 if prev_tile_value is None or cell_value != prev_tile_value:
-                    next_state[i, j] = cell_value
+                    state[i, j] = cell_value
                     prev_tile_value = cell_value
                     j += 1
                 else:
-                    next_state[i, j - 1] = cell_value + 1
+                    state[i, j - 1] = cell_value + 1
                     prev_tile_value = None
                     self.score += 2**(cell_value + 1)
 
-        return next_state
+            if j < state.shape[1]:
+                state[i, j:] = 0
+
+        return state
 
     def get_state_from_right_shift(self, state: np.ndarray) -> np.ndarray:
         flipped_state = np.fliplr(state)
