@@ -43,9 +43,9 @@ class GameManager:
 
         return False
 
-    def get_state_from_left_shift(self, state: np.ndarray) -> np.ndarray:
+    def move_tiles_left(self) -> None:
 
-        for i, row in enumerate(state):
+        for i, row in enumerate(self.state):
             j = 0
             prev_tile_value: int | None = None
 
@@ -54,46 +54,35 @@ class GameManager:
                     continue
 
                 if prev_tile_value is None or cell_value != prev_tile_value:
-                    state[i, j] = cell_value
+                    self.state[i, j] = cell_value
                     prev_tile_value = cell_value
                     j += 1
                 else:
-                    state[i, j - 1] = cell_value + 1
+                    self.state[i, j - 1] = cell_value + 1
                     prev_tile_value = None
                     self.score += 2**(cell_value + 1)
 
-            if j < state.shape[1]:
-                state[i, j:] = 0
-
-        return state
-
-    def get_state_from_right_shift(self, state: np.ndarray) -> np.ndarray:
-        flipped_state = np.fliplr(state)
-        next_flipped_state = self.get_state_from_left_shift(flipped_state)
-        return np.fliplr(next_flipped_state)
-
-    def get_state_from_up_shift(self, state: np.ndarray) -> np.ndarray:
-        transpose_state = np.transpose(state)
-        next_transpose_state = self.get_state_from_left_shift(transpose_state)
-        return np.transpose(next_transpose_state)
-
-    def get_state_from_down_shift(self, state: np.ndarray) -> np.ndarray:
-        flipped_state = np.flipud(state)
-        next_flipped_state = self.get_state_from_up_shift(flipped_state)
-        return np.flipud(next_flipped_state)
+            if j < self.state.shape[1]:
+                self.state[i, j:] = 0
 
     def move_tiles(self, direction: str) -> None:
         if not self.move_is_available(direction):
             return
 
-        match direction:
-            case 'left':
-                self.state = self.get_state_from_left_shift(self.state)
-            case 'right':
-                self.state = self.get_state_from_right_shift(self.state)
-            case 'up':
-                self.state = self.get_state_from_up_shift(self.state)
-            case 'down':
-                self.state = self.get_state_from_down_shift(self.state)
+        if direction == 'down':
+            self.state = np.flipud(self.state)
+        if direction in ['up', 'down']:
+            self.state = np.transpose(self.state)
+        if direction == 'right':
+            self.state = np.fliplr(self.state)
+
+        self.move_tiles_left()
+
+        if direction == 'right':
+            self.state = np.fliplr(self.state)
+        if direction in ['up', 'down']:
+            self.state = np.transpose(self.state)
+        if direction == 'down':
+            self.state = np.flipud(self.state)
 
         self.move_history.append(direction)
