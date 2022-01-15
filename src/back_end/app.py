@@ -60,7 +60,7 @@ def new_game(
 ) -> NewGameResponse:
 
     uuid = 1
-    active_games[uuid] = GameManager(rows=rows, columns=columns)
+    active_games[uuid] = GameManager.new_game(rows=rows, columns=columns)
     starting_tiles = active_games[uuid].tile_creation_history
     return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
 

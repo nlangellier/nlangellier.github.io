@@ -1,7 +1,7 @@
 import numpy as np
 
 from .constants import NEW_TILE_PROBABILITIES, NEW_TILE_VALUES
-from .schemas import Tile, TileCoordinates
+from .schemas import Tile
 
 
 class GameManager:
@@ -11,46 +11,26 @@ class GameManager:
     def __init__(self, rows: int = 4, columns: int = 4) -> None:
         self.rng = np.random.default_rng()
 
-        self.tile_creation_history: list[TileCoordinates] = []
+        self.tile_creation_history: list[Tile] = []
         self.move_history: list[str] = []
         self.score = 0
 
         self.state = np.zeros(shape=(rows, columns), dtype=np.uint8)
-        tile0 = self.create_new_tile()
-        tile1 = self.create_new_tile()
-        self.initial_tiles = [tile0, tile1]
+        self.create_new_tile()
+        self.create_new_tile()
 
     @classmethod
-    def from_state(cls,
-                   state: np.ndarray,
-                   tile_creation_history: list[TileCoordinates] | None = None,
-                   score: int = 0) -> 'GameManager':
-        game_manager = cls()
-        game_manager.state = state
-        if tile_creation_history is None:
-            game_manager.tile_creation_history = []
-        else:
-            game_manager.tile_creation_history = tile_creation_history
-        game_manager.score = score
-        return game_manager
+    def new_game(cls, rows: int = 4, columns: int = 4) -> 'GameManager':
+        return cls(rows=rows, columns=columns)
 
-    def create_new_tile(self) -> Tile:
+    def create_new_tile(self) -> None:
         indices_of_empty_cells = np.argwhere(self.state == 0)
         i, j = self.rng.choice(indices_of_empty_cells)
         value: int = self.rng.choice(NEW_TILE_VALUES, p=NEW_TILE_PROBABILITIES)
         self.state[i, j] = value
-        self.tile_creation_history.append([i, j])
 
-        return Tile(current_coord=[i, j], next_coord=[i, j],
-                    value=value, is_new=True)
-
-    @property
-    def rows(self) -> int:
-        return self.state.shape[0]
-
-    @property
-    def columns(self) -> int:
-        return self.state.shape[1]
+        new_tile = Tile(coordinates=[i, j], value=value)
+        self.tile_creation_history.append(new_tile)
 
     def move_is_available(self, direction: str) -> bool:
         rotated_state = np.rot90(self.state, k=self.num_rotations[direction])
@@ -63,114 +43,55 @@ class GameManager:
 
         return False
 
-    @property
-    def is_over(self) -> bool:
-        for direction in ['left', 'up', 'right', 'down']:
-            if self.move_is_available(direction):
-                return False
-
-        return True
-
-    @property
-    def available_moves(self) -> list[str]:
-        available_moves = []
-
-        for direction in ['left', 'up', 'right', 'down']:
-            if self.move_is_available(direction):
-                available_moves.append(direction)
-
-        return available_moves
-
-    def get_tiles_from_left_shift(self, state: np.ndarray) -> list[Tile]:
-        tiles = []
+    def get_state_from_left_shift(self, state: np.ndarray) -> np.ndarray:
+        next_state = np.zeros_like(state)
 
         for i, row in enumerate(state):
-            next_col = 0
-            prev_tile: Tile | None = None
+            j = 0
+            prev_tile_value: int | None = None
 
-            for j, cell_value in enumerate(row):
+            for cell_value in row:
                 if cell_value == 0:
                     continue
 
-                current_tile = Tile(current_coord=[i, j],
-                                    next_coord=[i, next_col],
-                                    value=cell_value)
-                tiles.append(current_tile)
-
-                if prev_tile is None or current_tile.value != prev_tile.value:
-                    next_col += 1
-                    prev_tile = current_tile
-
+                if prev_tile_value is None or cell_value != prev_tile_value:
+                    next_state[i, j] = cell_value
+                    prev_tile_value = cell_value
+                    j += 1
                 else:
-                    current_tile.next_coord = prev_tile.next_coord
-                    prev_tile.merge_with(current_tile)
-                    new_tile = Tile.new_from(current_tile)
-                    self.score += 2**new_tile.value
-                    tiles.append(new_tile)
-                    prev_tile = None
+                    next_state[i, j - 1] = cell_value + 1
+                    prev_tile_value = None
+                    self.score += 2**(cell_value + 1)
 
-        return tiles
+        return next_state
 
-    def get_tiles_from_right_shift(self, state: np.ndarray) -> list[Tile]:
+    def get_state_from_right_shift(self, state: np.ndarray) -> np.ndarray:
         flipped_state = np.fliplr(state)
-        tiles = self.get_tiles_from_left_shift(flipped_state)
-        for tile in tiles:
-            i, j = tile.current_coord
-            tile.current_coord = (i, self.columns - j - 1)
-            i, j = tile.next_coord
-            tile.next_coord = (i, self.columns - j - 1)
+        next_flipped_state = self.get_state_from_left_shift(flipped_state)
+        return np.fliplr(next_flipped_state)
 
-        return tiles
+    def get_state_from_up_shift(self, state: np.ndarray) -> np.ndarray:
+        transpose_state = np.transpose(state)
+        next_transpose_state = self.get_state_from_left_shift(transpose_state)
+        return np.transpose(next_transpose_state)
 
-    def get_tiles_from_up_shift(self, state: np.ndarray) -> list[Tile]:
-        transposed_state = np.transpose(state)
-        tiles = self.get_tiles_from_left_shift(transposed_state)
-        for tile in tiles:
-            i, j = tile.current_coord
-            tile.current_coord = (j, i)
-            i, j = tile.next_coord
-            tile.next_coord = (j, i)
-
-        return tiles
-
-    def get_tiles_from_down_shift(self, state: np.ndarray) -> list[Tile]:
+    def get_state_from_down_shift(self, state: np.ndarray) -> np.ndarray:
         flipped_state = np.flipud(state)
-        tiles = self.get_tiles_from_up_shift(flipped_state)
-        for tile in tiles:
-            i, j = tile.current_coord
-            tile.current_coord = (self.rows - i - 1, j)
-            i, j = tile.next_coord
-            tile.next_coord = (self.rows - i - 1, j)
+        next_flipped_state = self.get_state_from_up_shift(flipped_state)
+        return np.flipud(next_flipped_state)
 
-        return tiles
+    def move_tiles(self, direction: str) -> None:
+        if not self.move_is_available(direction):
+            return
 
-    def update_state(self, tiles: list[Tile]) -> None:
-        new_state = np.zeros_like(self.state)
+        match direction:
+            case 'left':
+                self.state = self.get_state_from_left_shift(self.state)
+            case 'right':
+                self.state = self.get_state_from_right_shift(self.state)
+            case 'up':
+                self.state = self.get_state_from_up_shift(self.state)
+            case 'down':
+                self.state = self.get_state_from_down_shift(self.state)
 
-        for tile in tiles:
-            if tile.is_merged:
-                continue
-            new_state[tuple(tile.next_coord)] = tile.value
-
-        self.state = new_state
-
-    def move(self, direction: str) -> list[Tile]:
-        if self.move_is_available(direction):
-            if direction == 'left':
-                tiles = self.get_tiles_from_left_shift(self.state)
-            elif direction == 'right':
-                tiles = self.get_tiles_from_right_shift(self.state)
-            elif direction == 'up':
-                tiles = self.get_tiles_from_up_shift(self.state)
-            elif direction == 'down':
-                tiles = self.get_tiles_from_down_shift(self.state)
-            else:
-                raise ValueError(f'Invalid direction: {direction}')
-
-            self.update_state(tiles)
-            self.move_history.append(direction)
-            new_tile = self.create_new_tile()
-            tiles.append(new_tile)
-            return tiles
-
-        raise ValueError(f'{direction} is not an available move.')
+        self.move_history.append(direction)
