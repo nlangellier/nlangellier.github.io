@@ -8,15 +8,15 @@ TileCoordinates = list[int]
 
 
 class Tile(BaseModel):
-    current_coord: TileCoordinates = Field(default=None,
+    current_coord: TileCoordinates = Field(default=...,
                                            description='Current coordinates',
                                            min_items=2, max_items=2,
                                            ge=0, lt=MAX_ROWS_COLUMNS)
-    next_coord: TileCoordinates = Field(default=None,
+    next_coord: TileCoordinates = Field(default=...,
                                         description='Next coordinates',
                                         min_items=2, max_items=2,
                                         ge=0, lt=MAX_ROWS_COLUMNS)
-    value: int = Field(default=None,
+    value: int = Field(default=...,
                        description='Log base 2 of tile text',
                        ge=0)
     is_merged: bool = Field(default=False,
@@ -44,17 +44,18 @@ class Direction(str, Enum):
 
 
 class GameStateResponse(BaseModel):
-    tiles: list[Tile] = Field(default=None, description='List of tiles')
-    available_moves: list[Direction] = Field(default=None,
+    score: int = Field(default=..., description='Current game score', ge=0)
+    tiles: list[Tile] = Field(default=..., description='List of tiles')
+    available_moves: list[Direction] = Field(default=...,
                                              description='List of moves')
 
 
 class NewGameResponse(GameStateResponse):
-    uuid: int = Field(default=None, description='Game ID')
+    uuid: int = Field(default=..., description='Game ID')
 
 
 class GameState(BaseModel):
-    values: list[list[int]] = Field(default=None,
+    values: list[list[int]] = Field(default=...,
                                     description='The state of the game board',
                                     min_items=MIN_ROWS_COLUMNS,
                                     max_items=MAX_ROWS_COLUMNS,
@@ -65,14 +66,14 @@ class GameOverInfo(BaseModel):
     name: str = Field(default='Anonymous',
                       description='The username of the player',
                       max_length=MAX_USERNAME_LENGTH)
-    score: int = Field(default=None,
+    score: int = Field(default=...,
                        description='The final score of the game',
                        ge=0)
-    rows: int = Field(default=None,
+    rows: int = Field(default=...,
                       description='Number of rows of the game board',
                       ge=MIN_ROWS_COLUMNS,
                       le=MAX_ROWS_COLUMNS)
-    columns: int = Field(default=None,
+    columns: int = Field(default=...,
                          description='Number of columns of the game board',
                          ge=MIN_ROWS_COLUMNS,
                          le=MAX_ROWS_COLUMNS)

@@ -50,11 +50,11 @@ def home() -> FileResponse:
 
 @app.get(path='/new-game', response_model=NewGameResponse)
 def new_game(
-        rows: int = Query(default=None,
+        rows: int = Query(default=...,
                           description='Number of rows of the game board',
                           ge=MIN_ROWS_COLUMNS,
                           le=MAX_ROWS_COLUMNS),
-        columns: int = Query(default=None,
+        columns: int = Query(default=...,
                              description='Number of columns of the game board',
                              ge=MIN_ROWS_COLUMNS,
                              le=MAX_ROWS_COLUMNS)
@@ -63,6 +63,7 @@ def new_game(
     uuid = 1
     active_games[uuid] = GameManager(rows=rows, columns=columns)
     return NewGameResponse(uuid=uuid,
+                           score=active_games[uuid].score,
                            tiles=active_games[uuid].initial_tiles,
                            available_moves=active_games[uuid].available_moves)
 
@@ -70,8 +71,11 @@ def new_game(
 @app.get(path='/move-tiles', response_model=GameStateResponse)
 def move_tiles(uuid: int, direction: Direction) -> GameStateResponse:
     tiles = active_games[uuid].move(direction)
+    score = active_games[uuid].score
     available_moves = active_games[uuid].available_moves
-    return GameStateResponse(tiles=tiles, available_moves=available_moves)
+    return GameStateResponse(score=score,
+                             tiles=tiles,
+                             available_moves=available_moves)
 
 
 @app.post(path='/hint')
@@ -109,11 +113,11 @@ def add_score_to_db(game_over_info: GameOverInfo) -> None:
 
 @app.get(path='/leader-board-top-10')
 def get_leader_board_top_10(
-        rows: int = Query(default=None,
+        rows: int = Query(default=...,
                           description='Number of rows of the game board',
                           ge=MIN_ROWS_COLUMNS,
                           le=MAX_ROWS_COLUMNS),
-        columns: int = Query(default=None,
+        columns: int = Query(default=...,
                              description='Number of columns of the game board',
                              ge=MIN_ROWS_COLUMNS,
                              le=MAX_ROWS_COLUMNS)

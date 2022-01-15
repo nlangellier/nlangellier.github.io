@@ -81,8 +81,7 @@ class GameManager:
 
         return available_moves
 
-    @staticmethod
-    def get_tiles_from_left_shift(state: np.ndarray) -> list[Tile]:
+    def get_tiles_from_left_shift(self, state: np.ndarray) -> list[Tile]:
         tiles = []
 
         for i, row in enumerate(state):
@@ -106,6 +105,7 @@ class GameManager:
                     current_tile.next_coord = prev_tile.next_coord
                     prev_tile.merge_with(current_tile)
                     new_tile = Tile.new_from(current_tile)
+                    self.score += 2**new_tile.value
                     tiles.append(new_tile)
                     prev_tile = None
 
