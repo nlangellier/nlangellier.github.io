@@ -5,7 +5,7 @@ from getpass import getpass
 from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pymongo import MongoClient
+from pymongo import DESCENDING, MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, LEADER_BOARD_LENGTH,
                         MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH,
@@ -73,11 +73,11 @@ def get_leader_board(
         of the leader board.
     """
 
-    query_result = db.leaderBoard.aggregate(
-        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
-                  {'$sort': {'score': -1}},
-                  {'$limit': LEADER_BOARD_LENGTH},
-                  {'$project': {'_id': False, 'name': True, 'score': True}}]
+    query_result = db.leaderBoard.find(
+        filter={'rows': rows, 'columns': columns},
+        sort=[('score', DESCENDING)],
+        limit=LEADER_BOARD_LENGTH,
+        projection={'_id': False, 'name': True, 'score': True}
     )
     leaders = [LeaderBoardEntry(**leader) for leader in query_result]
     return LeaderBoardResponse(leaders=leaders)
