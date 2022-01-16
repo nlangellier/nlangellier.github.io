@@ -68,6 +68,9 @@ def new_game(
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
 def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
+    if uuid not in active_games:
+        raise ValueError(f'Game {uuid} is not an active game.')
+
     active_games[uuid].move_tiles(direction)
     active_games[uuid].create_new_tile()
     return MoveResponse(nextTile=active_games[uuid].tile_creation_history[-1])
@@ -85,6 +88,9 @@ def get_hint(uuid: int) -> Direction:
     - Direction: The next move the AI model would take. One of {"left", "up",
         "right", "down"}.
     """
+
+    if uuid not in active_games:
+        raise ValueError(f'Game {uuid} is not an active game.')
 
     logger.info(f'This method is not yet implemented.')
     return random.choice(list(Direction))
