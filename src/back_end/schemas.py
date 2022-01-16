@@ -41,3 +41,8 @@ class GameOverInfo(BaseModel):
                          description='Number of columns of the game board',
                          ge=MIN_ROWS_COLUMNS,
                          le=MAX_ROWS_COLUMNS)
+
+
+class LeaderBoardEntry(BaseModel):
+    name: str = Field(default=..., description='Name of player', max_length=50)
+    score: int = Field(default=..., description='Final score of game', ge=0)

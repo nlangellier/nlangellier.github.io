@@ -90,6 +90,38 @@ def get_hint(uuid: int) -> Direction:
     return random.choice(list(Direction))
 
 
+@app.get(path='/leader-board', response_model=list[LeaderBoardEntry])
+def get_leader_board_top_10(
+        rows: int = Query(default=...,
+                          description='Number of rows of the game board',
+                          ge=MIN_ROWS_COLUMNS,
+                          le=MAX_ROWS_COLUMNS),
+        columns: int = Query(default=...,
+                             description='Number of columns of the game board',
+                             ge=MIN_ROWS_COLUMNS,
+                             le=MAX_ROWS_COLUMNS)
+) -> list[LeaderBoardEntry]:
+    """
+    Retrieves the top 10 scores and usernames for a given board size.
+
+    Args:
+    - **rows** (int): Number of rows of the game board.
+    - **columns** (int): Number of columns of the game board.
+
+    Returns:
+    - list[LeaderBoardEntry]: List of dictionaries containing the names and
+        scores of the leader board top 10.
+    """
+
+    leaders = db.leaderBoard.aggregate(
+        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
+                  {'$sort': {'score': -1}},
+                  {'$limit': 10},
+                  {'$project': {'_id': False, 'name': True, 'score': True}}]
+    )
+    return list(leaders)
+
+
 @app.post(path='/add-score')
 def add_score_to_db(game_over_info: GameOverInfo) -> None:
     """
@@ -101,35 +133,3 @@ def add_score_to_db(game_over_info: GameOverInfo) -> None:
     """
 
     db.leaderBoard.insert_one(game_over_info.dict())
-
-
-@app.get(path='/leader-board-top-10')
-def get_leader_board_top_10(
-        rows: int = Query(default=...,
-                          description='Number of rows of the game board',
-                          ge=MIN_ROWS_COLUMNS,
-                          le=MAX_ROWS_COLUMNS),
-        columns: int = Query(default=...,
-                             description='Number of columns of the game board',
-                             ge=MIN_ROWS_COLUMNS,
-                             le=MAX_ROWS_COLUMNS)
-) -> list[dict[str, str | int]]:
-    """
-    Retrieves the top 10 scores and usernames for a given board size.
-
-    Args:
-    - **rows** (int): Number of rows of the game board.
-    - **columns** (int): Number of columns of the game board.
-
-    Returns:
-    - list[dict[str, str | int]]: List of dictionaries containing the names and
-        scores of the leader board.
-    """
-
-    query_result = db.leaderBoard.aggregate(
-        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
-                  {'$sort': {'score': -1}},
-                  {'$limit': 10},
-                  {'$project': {'_id': False, 'name': True, 'score': True}}]
-    )
-    return list(query_result)
