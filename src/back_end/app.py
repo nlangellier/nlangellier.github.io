@@ -37,7 +37,7 @@ active_games: dict[int, GameManager] = {}
 
 
 @app.get(path='/')
-def home() -> FileResponse:
+def home_page() -> FileResponse:
     """
     Loads the 2048 Infinite home page.
 
