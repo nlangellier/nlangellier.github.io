@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from .constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
-                        MAX_USERNAME_LENGTH, NEW_TILE)
+                        MAX_USERNAME_LENGTH, NEW_TILE, UUID_LENGTH)
 
 
 class Direction(str, Enum):
@@ -26,7 +26,10 @@ class Tile(BaseModel):
 
 
 class NewGameResponse(BaseModel):
-    uuid: int = Field(default=..., description='Game ID')
+    uuid: str = Field(default=...,
+                      description='Game ID',
+                      min_length=UUID_LENGTH,
+                      max_length=UUID_LENGTH)
     startingTiles: list[Tile] = Field(default=...,
                                       description='List of starting tiles',
                                       min_items=len(NEW_TILE['values']),

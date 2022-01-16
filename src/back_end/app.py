@@ -9,8 +9,9 @@ from pymongo import MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, LEADER_BOARD_LENGTH,
                         MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH,
-                        MIN_ROWS_COLUMNS)
+                        MIN_ROWS_COLUMNS, UUID_LENGTH)
 from .game_manager import GameManager
+from .id_generator import generate_uuid
 from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
                       MoveResponse, NewGameResponse)
 
@@ -34,7 +35,7 @@ mongo_client = MongoClient(host='localhost',
                            authMechanism='SCRAM-SHA-256')
 db = mongo_client['2048Infinite']
 
-active_games: dict[int, GameManager] = {}
+active_games: dict[str, GameManager] = {}
 
 
 @app.get(path='/')
@@ -72,7 +73,7 @@ def start_new_game(
         two starting tiles with their initial positions and values.
     """
 
-    uuid = 1
+    uuid = generate_uuid()
     active_games[uuid] = GameManager.new_game(rows=rows, columns=columns)
     starting_tiles = active_games[uuid].tile_creation_history
     return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
@@ -80,7 +81,10 @@ def start_new_game(
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
 def move_tiles(
-        uuid: int = Query(default=..., description='Game ID', ge=0),
+        uuid: str = Query(default=...,
+                          description='Game ID',
+                          min_length=UUID_LENGTH,
+                          max_length=UUID_LENGTH),
         direction: Direction = Query(default=...,
                                      description='Direction to move tiles')
 ) -> MoveResponse:
@@ -88,7 +92,7 @@ def move_tiles(
     Moves the tiles in the given direction and returns the next tile.
 
     Args:
-    - **uuid** (int): The game ID.
+    - **uuid** (str): The game ID.
     - **direction** (Direction): The direction to move the tiles. One of
         {"left", "up", "right", "down"}.
 
@@ -107,13 +111,16 @@ def move_tiles(
 
 @app.get(path='/hint', response_model=Direction)
 def get_hint(
-        uuid: int = Query(default=..., description='Game ID', ge=0)
+        uuid: str = Query(default=...,
+                          description='Game ID',
+                          min_length=UUID_LENGTH,
+                          max_length=UUID_LENGTH)
 ) -> Direction:
     """
     Computes the next move the AI model would take from the current game state.
 
     Args:
-    - **uuid** (int): The game ID.
+    - **uuid** (str): The game ID.
 
     Returns:
     - Direction: The next move the AI model would take. One of {"left", "up",
@@ -162,7 +169,10 @@ def get_leader_board(
 
 @app.post(path='/game-over', response_model=None)
 def add_final_score_to_database(
-        uuid: int = Query(default=..., description='Game ID', ge=0),
+        uuid: str = Query(default=...,
+                          description='Game ID',
+                          min_length=UUID_LENGTH,
+                          max_length=UUID_LENGTH),
         name: str = Query(default='Anonymous',
                           description='Player name',
                           max_length=MAX_USERNAME_LENGTH)
@@ -171,7 +181,7 @@ def add_final_score_to_database(
     Updates the leader board database with the final game state from a game ID.
 
     Args:
-    - **uuid** (int): The game ID.
+    - **uuid** (str): The game ID.
     """
 
     if uuid not in active_games:
