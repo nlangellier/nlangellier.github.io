@@ -49,7 +49,7 @@ def home() -> FileResponse:
 
 
 @app.get(path='/new-game', response_model=NewGameResponse)
-def new_game(
+def start_new_game(
         rows: int = Query(default=...,
                           description='Number of rows of the game board',
                           ge=MIN_ROWS_COLUMNS,
