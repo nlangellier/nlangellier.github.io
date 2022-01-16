@@ -3,7 +3,8 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from .constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
-                        MAX_USERNAME_LENGTH, NEW_TILE, UUID_LENGTH)
+                        MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, NEW_TILE,
+                        UUID_LENGTH)
 
 
 class Direction(str, Enum):
@@ -34,6 +35,22 @@ class NewGameResponse(BaseModel):
                                       description='List of starting tiles',
                                       min_items=len(NEW_TILE['values']),
                                       max_items=len(NEW_TILE['values']))
+
+
+class LoadGameResponse(BaseModel):
+    rows: int = Field(default=...,
+                      description='Number of rows of the game board',
+                      ge=MIN_ROWS_COLUMNS,
+                      le=MAX_ROWS_COLUMNS),
+    columns: int = Field(default=...,
+                         description='Number of columns of the game board',
+                         ge=MIN_ROWS_COLUMNS,
+                         le=MAX_ROWS_COLUMNS)
+    tileCreationHistory: list[Tile] = Field(default=...,
+                                            description='List of tiles',
+                                            min_items=len(NEW_TILE['values']))
+    moveHistory: list[Direction] = Field(default=...,
+                                         description='List of player moves')
 
 
 class MoveResponse(BaseModel):

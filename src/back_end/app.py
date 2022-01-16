@@ -13,7 +13,7 @@ from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, LEADER_BOARD_LENGTH,
 from .game_manager import GameManager
 from .id_generator import generate_uuid
 from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
-                      MoveResponse, NewGameResponse)
+                      LoadGameResponse, MoveResponse, NewGameResponse)
 
 app = FastAPI()
 app.mount(path='/front-end',
@@ -110,6 +110,37 @@ def start_new_game(
     active_games[uuid] = GameManager.new_game(rows=rows, columns=columns)
     starting_tiles = active_games[uuid].tile_creation_history
     return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
+
+
+# TODO: add response_model
+@app.get(path='/load-game')
+def load_game(
+    uuid: str = Query(default=...,
+                      description='Game ID',
+                      min_length=UUID_LENGTH,
+                      max_length=UUID_LENGTH)
+) -> LoadGameResponse:
+    """
+    Loads a game history from the database with a given game ID.
+
+    Args:
+    - **uuid** (str): The game ID.
+
+    Returns:
+    - LoadGameResponse: A dictionary with the number of rows and columns as
+        well as the tile creation history and the player move history.
+    """
+
+    query_result = db.leaderBoard.find_one(
+        filter={'_id': uuid},
+        projection={'_id': False, 'name': False, 'score': False}
+    )
+
+    if query_result is None:
+        raise ValueError(f'Game {uuid} not found.')
+
+    logger.info(query_result)
+    return LoadGameResponse(**query_result)
 
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
