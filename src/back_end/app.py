@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
-                        MIN_ROWS_COLUMNS)
+                        MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS)
 from .game_manager import GameManager
 from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
                       MoveResponse, NewGameResponse)
@@ -78,7 +78,11 @@ def start_new_game(
 
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
-def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
+def move_tiles(
+        uuid: int = Query(default=..., description='Game ID', ge=0),
+        direction: Direction = Query(default=...,
+                                     description='Direction to move tiles')
+) -> MoveResponse:
     """
     Moves the tiles in the given direction and returns the next tile.
 
@@ -101,7 +105,9 @@ def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
 
 
 @app.get(path='/hint', response_model=Direction)
-def get_hint(uuid: int) -> Direction:
+def get_hint(
+        uuid: int = Query(default=..., description='Game ID', ge=0)
+) -> Direction:
     """
     Computes the next move the AI model would take from the current game state.
 
@@ -154,7 +160,12 @@ def get_leader_board_top_10(
 
 
 @app.post(path='/game-over', response_model=None)
-def add_final_score_to_database(uuid: int, name: str = 'Anonymous') -> None:
+def add_final_score_to_database(
+        uuid: int = Query(default=..., description='Game ID', ge=0),
+        name: str = Query(default='Anonymous',
+                          description='Player name',
+                          max_length=MAX_USERNAME_LENGTH)
+) -> None:
     """
     Updates the leader board database with the final game state from a game ID.
 
