@@ -1,6 +1,15 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
 
-from .constants import MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS
+from .constants import MAX_ROWS_COLUMNS
+
+
+class Direction(str, Enum):
+    left = 'left'
+    up = 'up'
+    right = 'right'
+    down = 'down'
 
 
 class Tile(BaseModel):
@@ -46,3 +55,9 @@ class GameOverInfo(BaseModel):
 class LeaderBoardEntry(BaseModel):
     name: str = Field(default=..., description='Name of player', max_length=50)
     score: int = Field(default=..., description='Final score of game', ge=0)
+
+
+class LeaderBoardResponse(BaseModel):
+    leaders: list[LeaderBoardEntry] = Field(default=...,
+                                            description='List of leaders',
+                                            min_items=0, max_items=10)

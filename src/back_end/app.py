@@ -8,10 +8,10 @@ from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
-                        MIN_ROWS_COLUMNS, Direction)
+                        MIN_ROWS_COLUMNS)
 from .game_manager import GameManager
-from .schemas import (GameOverInfo, LeaderBoardEntry, MoveResponse,
-                      NewGameResponse)
+from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
+                      MoveResponse, NewGameResponse)
 
 app = FastAPI()
 app.mount(path='/front-end',
@@ -90,7 +90,7 @@ def get_hint(uuid: int) -> Direction:
     return random.choice(list(Direction))
 
 
-@app.get(path='/leader-board', response_model=list[LeaderBoardEntry])
+@app.get(path='/leader-board', response_model=LeaderBoardResponse)
 def get_leader_board_top_10(
         rows: int = Query(default=...,
                           description='Number of rows of the game board',
@@ -100,7 +100,7 @@ def get_leader_board_top_10(
                              description='Number of columns of the game board',
                              ge=MIN_ROWS_COLUMNS,
                              le=MAX_ROWS_COLUMNS)
-) -> list[LeaderBoardEntry]:
+) -> LeaderBoardResponse:
     """
     Retrieves the top 10 scores and usernames for a given board size.
 
@@ -109,17 +109,18 @@ def get_leader_board_top_10(
     - **columns** (int): Number of columns of the game board.
 
     Returns:
-    - list[LeaderBoardEntry]: List of dictionaries containing the names and
-        scores of the leader board top 10.
+    - LeaderBoardResponse: List of dictionaries containing the names and scores
+        of the leader board top 10.
     """
 
-    leaders = db.leaderBoard.aggregate(
+    query_result = db.leaderBoard.aggregate(
         pipeline=[{'$match': {'rows': rows, 'columns': columns}},
                   {'$sort': {'score': -1}},
                   {'$limit': 10},
                   {'$project': {'_id': False, 'name': True, 'score': True}}]
     )
-    return list(leaders)
+    leaders = [LeaderBoardEntry(**leader) for leader in query_result]
+    return LeaderBoardResponse(leaders=leaders)
 
 
 @app.post(path='/add-score')
