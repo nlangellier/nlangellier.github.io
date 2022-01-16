@@ -50,6 +50,39 @@ def home_page() -> FileResponse:
     return FileResponse(DIRPATH_FRONT_END / 'index.html')
 
 
+@app.get(path='/leader-board', response_model=LeaderBoardResponse)
+def get_leader_board(
+        rows: int = Query(default=...,
+                          description='Number of rows of the game board',
+                          ge=MIN_ROWS_COLUMNS,
+                          le=MAX_ROWS_COLUMNS),
+        columns: int = Query(default=...,
+                             description='Number of columns of the game board',
+                             ge=MIN_ROWS_COLUMNS,
+                             le=MAX_ROWS_COLUMNS)
+) -> LeaderBoardResponse:
+    """
+    Retrieves the top scores and usernames for a given board size.
+
+    Args:
+    - **rows** (int): Number of rows of the game board.
+    - **columns** (int): Number of columns of the game board.
+
+    Returns:
+    - LeaderBoardResponse: List of dictionaries containing the names and scores
+        of the leader board.
+    """
+
+    query_result = db.leaderBoard.aggregate(
+        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
+                  {'$sort': {'score': -1}},
+                  {'$limit': LEADER_BOARD_LENGTH},
+                  {'$project': {'_id': False, 'name': True, 'score': True}}]
+    )
+    leaders = [LeaderBoardEntry(**leader) for leader in query_result]
+    return LeaderBoardResponse(leaders=leaders)
+
+
 @app.get(path='/new-game', response_model=NewGameResponse)
 def start_new_game(
         rows: int = Query(default=...,
@@ -134,41 +167,8 @@ def get_hint(
     return random.choice(list(Direction))
 
 
-@app.get(path='/leader-board', response_model=LeaderBoardResponse)
-def get_leader_board(
-        rows: int = Query(default=...,
-                          description='Number of rows of the game board',
-                          ge=MIN_ROWS_COLUMNS,
-                          le=MAX_ROWS_COLUMNS),
-        columns: int = Query(default=...,
-                             description='Number of columns of the game board',
-                             ge=MIN_ROWS_COLUMNS,
-                             le=MAX_ROWS_COLUMNS)
-) -> LeaderBoardResponse:
-    """
-    Retrieves the top scores and usernames for a given board size.
-
-    Args:
-    - **rows** (int): Number of rows of the game board.
-    - **columns** (int): Number of columns of the game board.
-
-    Returns:
-    - LeaderBoardResponse: List of dictionaries containing the names and scores
-        of the leader board.
-    """
-
-    query_result = db.leaderBoard.aggregate(
-        pipeline=[{'$match': {'rows': rows, 'columns': columns}},
-                  {'$sort': {'score': -1}},
-                  {'$limit': LEADER_BOARD_LENGTH},
-                  {'$project': {'_id': False, 'name': True, 'score': True}}]
-    )
-    leaders = [LeaderBoardEntry(**leader) for leader in query_result]
-    return LeaderBoardResponse(leaders=leaders)
-
-
 @app.post(path='/game-over', response_model=None)
-def add_final_score_to_database(
+def add_game_to_database(
         uuid: str = Query(default=...,
                           description='Game ID',
                           min_length=UUID_LENGTH,
