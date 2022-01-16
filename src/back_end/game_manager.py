@@ -69,7 +69,7 @@ class GameManager:
                 else:
                     self._state[i, j - 1] = cell_value + 1
                     prev_tile_value = None
-                    self.score += 2**(cell_value + 1)
+                    self.score += int(2**(cell_value + 1))
 
             if j < self._state.shape[1]:
                 self._state[i, j:] = 0
