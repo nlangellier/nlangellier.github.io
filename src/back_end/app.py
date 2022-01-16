@@ -10,7 +10,8 @@ from pymongo import MongoClient
 from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
                         MIN_ROWS_COLUMNS, Direction)
 from .game_manager import GameManager
-from .schemas import GameOverInfo, GameState, MoveResponse, NewGameResponse
+from .schemas import (GameOverInfo, LeaderBoardEntry, MoveResponse,
+                      NewGameResponse)
 
 app = FastAPI()
 app.mount(path='/front-end',
@@ -69,8 +70,7 @@ def new_game(
 def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
     active_games[uuid].move_tiles(direction)
     active_games[uuid].create_new_tile()
-    return MoveResponse(score=active_games[uuid].score,
-                        nextTile=active_games[uuid].tile_creation_history[-1])
+    return MoveResponse(nextTile=active_games[uuid].tile_creation_history[-1])
 
 
 @app.post(path='/hint')

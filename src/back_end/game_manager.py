@@ -29,7 +29,7 @@ class GameManager:
         value = self._rng.choice(NEW_TILE_VALUES, p=NEW_TILE_PROBABILITIES)
         self._state[i, j] = value
 
-        new_tile = Tile(coordinates=[i, j], value=value)
+        new_tile = Tile(row=i, column=j, value=value)
         self.tile_creation_history.append(new_tile)
 
     def _move_is_available(self, direction: str) -> bool:
