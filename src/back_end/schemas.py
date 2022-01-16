@@ -35,23 +35,6 @@ class MoveResponse(BaseModel):
     nextTile: Tile = Field(default=..., description='Next tile after move')
 
 
-class GameOverInfo(BaseModel):
-    name: str = Field(default='Anonymous',
-                      description='The username of the player',
-                      max_length=MAX_USERNAME_LENGTH)
-    score: int = Field(default=...,
-                       description='The final score of the game',
-                       ge=0)
-    rows: int = Field(default=...,
-                      description='Number of rows of the game board',
-                      ge=MIN_ROWS_COLUMNS,
-                      le=MAX_ROWS_COLUMNS)
-    columns: int = Field(default=...,
-                         description='Number of columns of the game board',
-                         ge=MIN_ROWS_COLUMNS,
-                         le=MAX_ROWS_COLUMNS)
-
-
 class LeaderBoardEntry(BaseModel):
     name: str = Field(default=..., description='Name of player', max_length=50)
     score: int = Field(default=..., description='Final score of game', ge=0)

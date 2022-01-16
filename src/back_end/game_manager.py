@@ -23,6 +23,14 @@ class GameManager:
     def new_game(cls, rows: int = 4, columns: int = 4) -> 'GameManager':
         return cls(rows=rows, columns=columns)
 
+    @property
+    def rows(self):
+        return self._state.shape[0]
+
+    @property
+    def columns(self):
+        return self._state.shape[1]
+
     def create_new_tile(self) -> None:
         indices_of_empty_cells = np.argwhere(self._state == 0)
         i, j = self._rng.choice(indices_of_empty_cells)

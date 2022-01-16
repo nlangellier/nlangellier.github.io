@@ -123,14 +123,29 @@ def get_leader_board_top_10(
     return LeaderBoardResponse(leaders=leaders)
 
 
-@app.post(path='/add-score')
-def add_score_to_db(game_over_info: GameOverInfo) -> None:
+@app.post(path='/game-over', response_model=None)
+def add_final_score_to_database(uuid: int, name: str = 'Anonymous') -> None:
     """
-    Updates the MongoDB database with the information provided.
+    Updates the leader board database with the final game state from a game ID.
 
     Args:
-    - **game_over_info** (GameOverInfo): Class with name (str), score (int),
-        rows (rows), and columns (int) attributes.
+    - **uuid** (int): The game ID.
     """
 
-    db.leaderBoard.insert_one(game_over_info.dict())
+    if uuid not in active_games:
+        raise ValueError(f'Game {uuid} is not an active game.')
+    if db.leaderBoard.count_documents({'_id': uuid}, limit=1) > 0:
+        raise ValueError(f'Game {uuid} already exists in the database.')
+
+    tile_creation_history = [tile.dict() for tile in
+                             active_games[uuid].tile_creation_history]
+
+    db.leaderBoard.insert_one(
+        {'_id': uuid,
+         'name': name,
+         'score': active_games[uuid].score,
+         'rows': active_games[uuid].rows,
+         'columns': active_games[uuid].columns,
+         'tileCreationHistory': tile_creation_history,
+         'moveHistory': active_games[uuid].move_history}
+    )
