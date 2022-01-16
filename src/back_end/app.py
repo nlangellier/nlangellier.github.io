@@ -123,7 +123,7 @@ def get_hint(
     if uuid not in active_games:
         raise ValueError(f'Game {uuid} is not an active game.')
 
-    logger.info(f'This method is not yet implemented.')
+    logger.info('This method is not yet implemented.')
     return random.choice(list(Direction))
 
 
