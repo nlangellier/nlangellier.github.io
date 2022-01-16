@@ -42,7 +42,7 @@ def home() -> FileResponse:
     Loads the 2048 Infinite home page.
 
     Returns:
-    - FileResponse: front-end/index.html
+    - FileResponse: The static webpage at front-end/index.html
     """
 
     return FileResponse(DIRPATH_FRONT_END / 'index.html')
@@ -59,6 +59,17 @@ def start_new_game(
                              ge=MIN_ROWS_COLUMNS,
                              le=MAX_ROWS_COLUMNS)
 ) -> NewGameResponse:
+    """
+    Starts a new game of 2048 Infinite.
+
+    Args:
+    - **rows** (int): Number of rows of the game board.
+    - **columns** (int): Number of columns of the game board.
+
+    Returns:
+    - NewGameResponse: A dictionary containing the game ID and a list of the
+        two starting tiles with their initial positions and values.
+    """
 
     uuid = 1
     active_games[uuid] = GameManager.new_game(rows=rows, columns=columns)
@@ -68,6 +79,19 @@ def start_new_game(
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
 def move_tiles(uuid: int, direction: Direction) -> MoveResponse:
+    """
+    Moves the tiles in the given direction and returns the next tile.
+
+    Args:
+    - **uuid** (int): The game ID.
+    - **direction** (Direction): The direction to move the tiles. One of
+        {"left", "up", "right", "down"}.
+
+    Returns:
+    - MoveResponse: A dictionary containing the position and value of the next
+        tile.
+    """
+
     if uuid not in active_games:
         raise ValueError(f'Game {uuid} is not an active game.')
 
