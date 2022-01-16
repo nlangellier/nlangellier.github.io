@@ -7,8 +7,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
 
-from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, MAX_ROWS_COLUMNS,
-                        MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS)
+from .constants import (DIRPATH_FRONT_END, DIRPATH_IMAGES, LEADER_BOARD_LENGTH,
+                        MAX_ROWS_COLUMNS, MAX_USERNAME_LENGTH,
+                        MIN_ROWS_COLUMNS)
 from .game_manager import GameManager
 from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
                       MoveResponse, NewGameResponse)
@@ -127,7 +128,7 @@ def get_hint(
 
 
 @app.get(path='/leader-board', response_model=LeaderBoardResponse)
-def get_leader_board_top_10(
+def get_leader_board(
         rows: int = Query(default=...,
                           description='Number of rows of the game board',
                           ge=MIN_ROWS_COLUMNS,
@@ -138,7 +139,7 @@ def get_leader_board_top_10(
                              le=MAX_ROWS_COLUMNS)
 ) -> LeaderBoardResponse:
     """
-    Retrieves the top 10 scores and usernames for a given board size.
+    Retrieves the top scores and usernames for a given board size.
 
     Args:
     - **rows** (int): Number of rows of the game board.
@@ -146,13 +147,13 @@ def get_leader_board_top_10(
 
     Returns:
     - LeaderBoardResponse: List of dictionaries containing the names and scores
-        of the leader board top 10.
+        of the leader board.
     """
 
     query_result = db.leaderBoard.aggregate(
         pipeline=[{'$match': {'rows': rows, 'columns': columns}},
                   {'$sort': {'score': -1}},
-                  {'$limit': 10},
+                  {'$limit': LEADER_BOARD_LENGTH},
                   {'$project': {'_id': False, 'name': True, 'score': True}}]
     )
     leaders = [LeaderBoardEntry(**leader) for leader in query_result]

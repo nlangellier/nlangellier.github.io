@@ -2,7 +2,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from .constants import MAX_ROWS_COLUMNS
+from .constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
+                        MAX_USERNAME_LENGTH, NEW_TILE)
 
 
 class Direction(str, Enum):
@@ -28,7 +29,8 @@ class NewGameResponse(BaseModel):
     uuid: int = Field(default=..., description='Game ID')
     startingTiles: list[Tile] = Field(default=...,
                                       description='List of starting tiles',
-                                      min_items=2, max_items=2)
+                                      min_items=len(NEW_TILE['values']),
+                                      max_items=len(NEW_TILE['values']))
 
 
 class MoveResponse(BaseModel):
@@ -36,11 +38,14 @@ class MoveResponse(BaseModel):
 
 
 class LeaderBoardEntry(BaseModel):
-    name: str = Field(default=..., description='Name of player', max_length=50)
+    name: str = Field(default=...,
+                      description='Name of player',
+                      max_length=MAX_USERNAME_LENGTH)
     score: int = Field(default=..., description='Final score of game', ge=0)
 
 
 class LeaderBoardResponse(BaseModel):
     leaders: list[LeaderBoardEntry] = Field(default=...,
                                             description='List of leaders',
-                                            min_items=0, max_items=10)
+                                            min_items=0,
+                                            max_items=LEADER_BOARD_LENGTH)

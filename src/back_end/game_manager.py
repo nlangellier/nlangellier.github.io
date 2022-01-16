@@ -1,6 +1,6 @@
 import numpy as np
 
-from .constants import NEW_TILE_PROBABILITIES, NEW_TILE_VALUES
+from .constants import NEW_TILE
 from .schemas import Tile
 
 
@@ -34,7 +34,8 @@ class GameManager:
     def create_new_tile(self) -> None:
         indices_of_empty_cells = np.argwhere(self._state == 0)
         i, j = self._rng.choice(indices_of_empty_cells)
-        value = self._rng.choice(NEW_TILE_VALUES, p=NEW_TILE_PROBABILITIES)
+        value = self._rng.choice(NEW_TILE['values'],
+                                 p=NEW_TILE['probabilities'])
         self._state[i, j] = value
 
         new_tile = Tile(row=i, column=j, value=value)
