@@ -130,16 +130,28 @@ def load_game(
         well as the tile creation history and the player move history.
     """
 
+    if uuid in active_games:
+        raise ValueError(f'Game {uuid} is already an active game.')
+
     query_result = db.leaderBoard.find_one(
         filter={'_id': uuid},
-        projection={'_id': False, 'name': False, 'score': False}
+        projection={'_id': False, 'rows': True, 'columns': True,
+                    'tileCreationHistory': True, 'moveHistory': True}
     )
 
     if query_result is None:
         raise ValueError(f'Game {uuid} not found.')
 
-    logger.info(query_result)
-    return LoadGameResponse(**query_result)
+    load_game_response = LoadGameResponse(**query_result)
+
+    active_games[uuid] = GameManager.load_game(
+        rows=load_game_response.rows,
+        columns=load_game_response.columns,
+        tile_creation_history=load_game_response.tileCreationHistory,
+        move_history=load_game_response.moveHistory
+    )
+
+    return load_game_response
 
 
 @app.get(path='/move-tiles', response_model=MoveResponse)
@@ -217,6 +229,7 @@ def add_game_to_database(
     if uuid not in active_games:
         raise ValueError(f'Game {uuid} is not an active game.')
     if db.leaderBoard.count_documents({'_id': uuid}, limit=1) > 0:
+        active_games.pop(uuid)
         raise ValueError(f'Game {uuid} already exists in the database.')
 
     tile_creation_history = [tile.dict() for tile in
@@ -231,3 +244,5 @@ def add_game_to_database(
          'tileCreationHistory': tile_creation_history,
          'moveHistory': active_games[uuid].move_history}
     )
+
+    active_games.pop(uuid)

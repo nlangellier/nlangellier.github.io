@@ -1,27 +1,47 @@
 import numpy as np
 
-from .constants import NEW_TILE
-from .schemas import Tile
-
+from .constants import NEW_TILE, NUM_STARTING_TILES
+from .schemas import Direction, Tile
 
 class GameManager:
 
     _num_rotations = {'left': 0, 'up': 1, 'right': 2, 'down': 3}
 
-    def __init__(self, rows: int = 4, columns: int = 4) -> None:
+    def __init__(self, rows: int, columns: int) -> None:
         self._rng = np.random.default_rng()
 
         self.tile_creation_history: list[Tile] = []
-        self.move_history: list[str] = []
+        self.move_history: list[Direction] = []
         self.score = 0
 
         self._state = np.zeros(shape=(rows, columns), dtype=np.uint8)
-        self.create_new_tile()
-        self.create_new_tile()
 
     @classmethod
-    def new_game(cls, rows: int = 4, columns: int = 4) -> 'GameManager':
-        return cls(rows=rows, columns=columns)
+    def new_game(cls, rows: int, columns: int) -> 'GameManager':
+        game_manager = cls(rows=rows, columns=columns)
+        for _ in range(NUM_STARTING_TILES):
+            game_manager.create_new_tile()
+        return game_manager
+
+    @classmethod
+    def load_game(cls,
+                  rows: int,
+                  columns: int,
+                  tile_creation_history: list[Tile],
+                  move_history: list[Direction]) -> 'GameManager':
+        game_manager = cls(rows=rows, columns=columns)
+
+        starting_tiles = tile_creation_history[:NUM_STARTING_TILES]
+        response_tiles = tile_creation_history[NUM_STARTING_TILES:]
+
+        for tile in starting_tiles:
+            game_manager.create_new_tile(tile)
+
+        for direction, tile in zip(move_history, response_tiles):
+            game_manager.move_tiles(direction)
+            game_manager.create_new_tile(tile)
+
+        return game_manager
 
     @property
     def rows(self):
@@ -31,17 +51,20 @@ class GameManager:
     def columns(self):
         return self._state.shape[1]
 
-    def create_new_tile(self) -> None:
-        indices_of_empty_cells = np.argwhere(self._state == 0)
-        i, j = self._rng.choice(indices_of_empty_cells)
-        value = self._rng.choice(NEW_TILE['values'],
-                                 p=NEW_TILE['probabilities'])
+    def create_new_tile(self, tile: Tile | None = None) -> None:
+        if tile is None:
+            indices_of_empty_cells = np.argwhere(self._state == 0)
+            i, j = self._rng.choice(indices_of_empty_cells)
+            value = self._rng.choice(NEW_TILE['values'],
+                                     p=NEW_TILE['probabilities'])
+            tile = Tile(row=i, column=j, value=value)
+        else:
+            i, j, value = tile.row, tile.column, tile.value
+
         self._state[i, j] = value
+        self.tile_creation_history.append(tile)
 
-        new_tile = Tile(row=i, column=j, value=value)
-        self.tile_creation_history.append(new_tile)
-
-    def _move_is_available(self, direction: str) -> bool:
+    def _move_is_available(self, direction: Direction) -> bool:
         rotated_state = np.rot90(self._state, k=self._num_rotations[direction])
 
         for row in rotated_state:
@@ -74,7 +97,7 @@ class GameManager:
             if j < self._state.shape[1]:
                 self._state[i, j:] = 0
 
-    def move_tiles(self, direction: str) -> None:
+    def move_tiles(self, direction: Direction) -> None:
         if not self._move_is_available(direction):
             return
 
