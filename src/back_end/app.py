@@ -224,6 +224,7 @@ def add_game_to_database(
 
     Args:
     - **uuid** (str): The game ID.
+    - **name** (str): The player name.
     """
 
     if uuid not in active_games:
