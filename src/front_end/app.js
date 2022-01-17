@@ -307,13 +307,12 @@ class Game2048 {
     }
 
     async getAIHint() {
-        const request = new Request("/hint",
-                                    {method: "POST",
-                                     headers: {"Content-Type": "application/json"},
-                                     body: JSON.stringify(this.state)});
+        const request = new Request(`/hint?uuid=${this.uuid}`,
+                                    {method: "GET",
+                                     headers: {"Content-Type": "application/json"}});
         const response = await fetch(request);
-        const data = await response.json();
-        const hint = data.hint;
+        const hint = await response.json();
+
         this.hintText.innerText = hint[0].toUpperCase() + hint.slice(1);
         this.board.focus();
     }
