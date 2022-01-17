@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from .constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
                         MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, NEW_TILE,
-                        UUID_LENGTH)
+                        NUM_STARTING_TILES, UUID_LENGTH)
 
 
 class Direction(str, Enum):
@@ -33,8 +33,8 @@ class NewGameResponse(BaseModel):
                       max_length=UUID_LENGTH)
     startingTiles: list[Tile] = Field(default=...,
                                       description='List of starting tiles',
-                                      min_items=len(NEW_TILE['values']),
-                                      max_items=len(NEW_TILE['values']))
+                                      min_items=NUM_STARTING_TILES,
+                                      max_items=NUM_STARTING_TILES)
 
 
 class LoadGameResponse(BaseModel):
@@ -48,7 +48,7 @@ class LoadGameResponse(BaseModel):
                          le=MAX_ROWS_COLUMNS)
     tileCreationHistory: list[Tile] = Field(default=...,
                                             description='List of tiles',
-                                            min_items=len(NEW_TILE['values']))
+                                            min_items=NUM_STARTING_TILES)
     moveHistory: list[Direction] = Field(default=...,
                                          description='List of player moves')
 
