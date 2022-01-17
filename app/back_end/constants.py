@@ -1,9 +1,9 @@
 import string
 from pathlib import Path
 
-DIRPATH_REPO = Path(__file__).parent.parent.parent
-DIRPATH_FRONT_END = DIRPATH_REPO / 'src' / 'front_end'
-DIRPATH_IMAGES = DIRPATH_REPO / 'images'
+DIRPATH_APP = Path(__file__).parent.parent
+DIRPATH_FRONT_END = DIRPATH_APP / 'front_end'
+DIRPATH_IMAGES = DIRPATH_APP / 'images'
 
 MIN_ROWS_COLUMNS = 3
 MAX_ROWS_COLUMNS = 6
