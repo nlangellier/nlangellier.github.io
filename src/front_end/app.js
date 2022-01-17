@@ -1,19 +1,3 @@
-function random2DIndexOf(array2D, searchElement) {
-    let maxRandomNum = 0;
-    let random2DIndex = -1;
-
-    for (let i = 0; i < array2D.length; i++) {
-        for (let j = 0; j < array2D[i].length; j++) {
-            const newRandomNum = Math.random();
-            if (array2D[i][j] === searchElement && newRandomNum > maxRandomNum) {
-                random2DIndex = [i, j];
-                maxRandomNum = newRandomNum;
-            }
-        }
-    }
-    return random2DIndex;
-};
-
 class Game2048 {
     constructor() {
         this.board = document.getElementById('gameBoard');
@@ -26,8 +10,11 @@ class Game2048 {
         this.newGameButton = document.getElementById("newGameButton");
         this.hintButton = document.getElementById("hintButton");
         this.hintText = document.getElementById("hintText");
-        this.leaderBoard = document.querySelector('#leaderBoard')
+        this.leaderBoard = document.getElementById('leaderBoard')
 
+        this.uuid = null;
+        this.score = null;
+        this.tiles = null;
         this.isAvailable = {up: false, down: false, left: false, right: false};
         this.touchX0 = 0;
         this.touchX1 = 0;
@@ -47,16 +34,26 @@ class Game2048 {
         return Array.from({length: this.rows}, () => Array(this.columns).fill(null));
     }
 
-    newGame() {
+    async newGame() {
         this.score = 0;
         this.hintText.innerText = "";
         this.updateScoreBoard();
         this.gameOverMessage.classList.remove("visibility");
         this.initializeBoard();
-        this.addNewTile();
-        this.addNewTile();
-        this.setAvailableMoves();
-        this.updateLeaderBoardTop10();
+
+        const request = new Request(`/new-game?rows=${this.rows}&columns=${this.columns}`,
+                                    {method: "GET",
+                                     headers: {"Content-Type": "application/json"}});
+        const response = await fetch(request);
+        const data = await response.json();
+
+        this.uuid = data.uuid;
+
+        for (const tile of data.startingTiles) {
+            this.addNewTile(tile)
+        }
+
+        await this.updateLeaderBoard();
     }
 
     getNewGridElement(gridClass, parent) {
@@ -102,13 +99,13 @@ class Game2048 {
         this.scoreBoard.innerText = this.score.toLocaleString();
     }
 
-    addNewTile() {
-        const [i, j] = random2DIndexOf(this.tiles, null);
+    addNewTile(newTile) {
+        const [i, j] = [newTile.row, newTile.column];
 
         const tile = document.createElement('div');
-        tile.rowIdx = i;
-        tile.columnIdx = j;
-        tile.value = Math.random() < 0.9 ? 2 : 4;
+        tile.row = i;
+        tile.column = j;
+        tile.value = 2**newTile.value;
         tile.innerText = tile.value;
         tile.classList.add('tile', `row${i + 1}`, `column${j + 1}`, `value${tile.value}`);
 
@@ -321,15 +318,15 @@ class Game2048 {
         await fetch(request);
     }
 
-    async updateLeaderBoardTop10() {
-        const request = new Request(`/leader-board-top-10?rows=${this.rows}&columns=${this.columns}`,
+    async updateLeaderBoard() {
+        const request = new Request(`/leader-board?rows=${this.rows}&columns=${this.columns}`,
                                     {method: "GET",
                                      headers: {"Content-Type": "application/json"}});
         const response = await fetch(request);
-        const leaders = await response.json();
+        const data = await response.json();
 
         this.leaderBoard.replaceChildren();
-        for (const leader of leaders) {
+        for (const leader of data.leaders) {
             const li = document.createElement('li');
             li.innerText = `${leader.name} - ${leader.score}`
             this.leaderBoard.appendChild(li);
