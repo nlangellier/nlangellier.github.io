@@ -103,7 +103,7 @@ def start_new_game(
 
     Returns:
     - NewGameResponse: A dictionary containing the game ID and a list of the
-        two starting tiles with their initial positions and values.
+        starting tiles with their initial positions and values.
     """
 
     uuid = generate_uuid()
