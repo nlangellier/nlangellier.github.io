@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from .constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
-                        MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, NEW_TILE,
+                        MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS,
                         NUM_STARTING_TILES, UUID_LENGTH)
 
 
