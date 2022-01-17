@@ -23,7 +23,7 @@ class Game2048 {
 
         this.newGameButton.addEventListener("click", this.newGame.bind(this));
         this.hintButton.addEventListener('click', this.getAIHint.bind(this));
-        this.board.addEventListener('keyup', this.keyUpEvent.bind(this));
+        this.board.addEventListener('keydown', this.keyDownEvent.bind(this));
         this.board.addEventListener('touchstart', this.touchStartEvent.bind(this));
         this.board.addEventListener('touchend', this.touchEndEvent.bind(this));
 
@@ -37,9 +37,10 @@ class Game2048 {
     async newGame() {
         this.score = 0;
         this.hintText.innerText = "";
-        this.updateScoreBoard();
         this.gameOverMessage.classList.remove("visibility");
         this.initializeBoard();
+        this.updateScoreBoard();
+        this.updateLeaderBoard();
 
         const request = new Request(`/new-game?rows=${this.rows}&columns=${this.columns}`,
                                     {method: "GET",
@@ -53,7 +54,7 @@ class Game2048 {
             this.addNewTile(tile)
         }
 
-        await this.updateLeaderBoard();
+        this.setAvailableMoves();
     }
 
     getNewGridElement(gridClass, parent) {
@@ -103,8 +104,8 @@ class Game2048 {
         const [i, j] = [newTile.row, newTile.column];
 
         const tile = document.createElement('div');
-        tile.row = i;
-        tile.column = j;
+        tile.rowIdx = i;
+        tile.columnIdx = j;
         tile.value = 2**newTile.value;
         tile.innerText = tile.value;
         tile.classList.add('tile', `row${i + 1}`, `column${j + 1}`, `value${tile.value}`);
@@ -234,19 +235,32 @@ class Game2048 {
         }
     }
 
-    slideTiles(direction) {
+    async getNextTile(direction) {
+        const request = new Request(`/move-tiles?uuid=${this.uuid}&direction=${direction}`,
+                                    {method: "GET",
+                                     headers: {"Content-Type": "application/json"}});
+        const response = await fetch(request);
+        const data = await response.json();
+        return data.nextTile;
+    }
+
+    async slideTiles(direction) {
         if (this.isAvailable[direction]) {
             this.hintText.innerText = "";
             this.isAvailable = {up: false, down: false, left: false, right: false};
             this.computeTileShifts(direction);
             this.moveTiles();
             this.updateScoreBoard();
-            this.addNewTile();
+            const tile = await this.getNextTile(direction);
+            this.addNewTile(tile);
             this.setAvailableMoves();
         }
     }
 
-    keyUpEvent(event) {
+    keyDownEvent(event) {
+        event.preventDefault();
+        if (event.repeat) return;
+
         if (event.code === 'ArrowUp' || event.code === 'KeyW') {
             this.slideTiles('up');
         } else if (event.code === 'ArrowDown' || event.code === 'KeyS') {
