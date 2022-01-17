@@ -3,6 +3,7 @@ import numpy as np
 from .constants import NEW_TILE, NUM_STARTING_TILES
 from .schemas import Direction, Tile
 
+
 class GameManager:
 
     _num_rotations = {'left': 0, 'up': 1, 'right': 2, 'down': 3}
