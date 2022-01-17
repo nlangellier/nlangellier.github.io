@@ -112,8 +112,7 @@ def start_new_game(
     return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
 
 
-# TODO: add response_model
-@app.get(path='/load-game')
+@app.get(path='/load-game', response_model=LoadGameResponse)
 def load_game(
     uuid: str = Query(default=...,
                       description='Game ID',
