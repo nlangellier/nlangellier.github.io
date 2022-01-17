@@ -318,16 +318,10 @@ class Game2048 {
     }
 
     async postNewScoreToDatabase() {
-        const gameOverInfo = {
-            name: "testing",
-            score: this.score,
-            rows: this.rows,
-            columns: this.columns
-        };
-        const request = new Request("/add-score",
+        const name = 'testing'
+        const request = new Request(`/game-over?uuid=${this.uuid}&name=${name}`,
                                     {method: "POST",
-                                     headers: {"Content-Type": "application/json"},
-                                     body: JSON.stringify(gameOverInfo)});
+                                     headers: {"Content-Type": "application/json"}});
         await fetch(request);
     }
 
