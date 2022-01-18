@@ -1,7 +1,7 @@
 import numpy as np
 
 from .constants import NEW_TILE, NUM_STARTING_TILES
-from .schemas import Direction, Tile
+from .models import Direction, Tile
 
 
 class GameManager:

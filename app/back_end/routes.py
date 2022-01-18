@@ -10,8 +10,8 @@ from .constants import (DIRPATH_FRONT_END, LEADER_BOARD_LENGTH,
                         MIN_ROWS_COLUMNS, UUID_LENGTH)
 from .game_manager import GameManager
 from .id_generator import generate_uuid
-from .schemas import (Direction, LeaderBoardEntry, LeaderBoardResponse,
-                      LoadGameResponse, MoveResponse, NewGameResponse)
+from .models import (Direction, LeaderBoardEntry, LeaderBoardResponse,
+                     LoadGameResponse, MoveResponse, NewGameResponse)
 
 router = APIRouter()
 
