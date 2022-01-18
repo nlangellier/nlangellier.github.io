@@ -10,12 +10,11 @@ class GameManager:
 
     def __init__(self, rows: int, columns: int) -> None:
         self._rng = np.random.default_rng()
+        self._state = np.zeros(shape=(rows, columns), dtype=np.uint8)
 
         self.tile_creation_history: list[Tile] = []
         self.move_history: list[Direction] = []
         self.score = 0
-
-        self._state = np.zeros(shape=(rows, columns), dtype=np.uint8)
 
     @classmethod
     def new_game(cls, rows: int, columns: int) -> 'GameManager':
@@ -59,10 +58,8 @@ class GameManager:
             value = self._rng.choice(NEW_TILE['values'],
                                      p=NEW_TILE['probabilities'])
             tile = Tile(row=i, column=j, value=value)
-        else:
-            i, j, value = tile.row, tile.column, tile.value
 
-        self._state[i, j] = value
+        self._state[tile.row, tile.column] = tile.value
         self.tile_creation_history.append(tile)
 
     def _move_is_available(self, direction: Direction) -> bool:
