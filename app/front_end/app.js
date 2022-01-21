@@ -42,7 +42,7 @@ class Game2048 {
         this.updateScoreBoard();
         this.updateLeaderBoard();
 
-        const request = new Request(`/new-game?rows=${this.rows}&columns=${this.columns}`,
+        const request = new Request(`/game/new?rows=${this.rows}&columns=${this.columns}`,
                                     {method: "GET",
                                      headers: {"Content-Type": "application/json"}});
         const response = await fetch(request);
@@ -236,7 +236,7 @@ class Game2048 {
     }
 
     async getNextTile(direction) {
-        const request = new Request(`/move-tiles?uuid=${this.uuid}&direction=${direction}`,
+        const request = new Request(`/game/move-tiles?uuid=${this.uuid}&direction=${direction}`,
                                     {method: "GET",
                                      headers: {"Content-Type": "application/json"}});
         const response = await fetch(request);
@@ -307,7 +307,7 @@ class Game2048 {
     }
 
     async getAIHint() {
-        const request = new Request(`/hint?uuid=${this.uuid}`,
+        const request = new Request(`/game/hint?uuid=${this.uuid}`,
                                     {method: "GET",
                                      headers: {"Content-Type": "application/json"}});
         const response = await fetch(request);
@@ -319,7 +319,7 @@ class Game2048 {
 
     async postNewScoreToDatabase() {
         const name = 'testing'
-        const request = new Request(`/game-over?uuid=${this.uuid}&name=${name}`,
+        const request = new Request(`/leader-board?uuid=${this.uuid}&name=${name}`,
                                     {method: "POST",
                                      headers: {"Content-Type": "application/json"}});
         await fetch(request);
