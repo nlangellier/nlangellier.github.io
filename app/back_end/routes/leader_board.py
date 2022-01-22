@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from pymongo import DESCENDING
+from pymongo.database import Database
 
 from ..constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
                          MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, UUID_LENGTH)
-from ..database_client import db
+from ..database_client import get_db
 from ..schemas import LeaderBoardEntry, LeaderBoardResponse
 from .game import active_games
 
@@ -19,7 +20,8 @@ def get_leader_board(
         columns: int = Query(default=...,
                              description='Number of columns of the game board',
                              ge=MIN_ROWS_COLUMNS,
-                             le=MAX_ROWS_COLUMNS)
+                             le=MAX_ROWS_COLUMNS),
+        db: Database = Depends(get_db)
 ) -> LeaderBoardResponse:
     """
     Retrieves the top scores and usernames for a given board size.
@@ -51,7 +53,8 @@ def post_game_to_leader_board(
                           max_length=UUID_LENGTH),
         name: str = Query(default='Anonymous',
                           description='Player name',
-                          max_length=MAX_USERNAME_LENGTH)
+                          max_length=MAX_USERNAME_LENGTH),
+        db: Database = Depends(get_db)
 ) -> None:
     """
     Updates the leader board database with the final game state from a game ID.

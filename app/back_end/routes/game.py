@@ -1,9 +1,10 @@
 import random
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from pymongo.database import Database
 
 from ..constants import MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS, UUID_LENGTH
-from ..database_client import db
+from ..database_client import get_db
 from ..game_manager import GameManager
 from ..id_generator import generate_uuid
 from ..schemas import (Direction, LoadGameResponse, MoveResponse,
@@ -48,7 +49,8 @@ def load_game(
     uuid: str = Query(default=...,
                       description='Game ID',
                       min_length=UUID_LENGTH,
-                      max_length=UUID_LENGTH)
+                      max_length=UUID_LENGTH),
+    db: Database = Depends(get_db)
 ) -> LoadGameResponse:
     """
     Loads a game history from the database with a given game ID.
