@@ -35,7 +35,7 @@ def get_leader_board(
         of the leader board.
     """
 
-    query_result = db.leaderBoard.find(
+    query_result = db.games.find(
         filter={'rows': rows, 'columns': columns},
         sort=[('score', DESCENDING)],
         limit=LEADER_BOARD_LENGTH,
@@ -86,10 +86,9 @@ def post_game_to_leader_board(
                              'direction': direction,
                              'gameID': uuid})
 
-    db.leaderBoard.insert_one({'name': name,
-                               'score': game.score,
-                               'gameID': uuid})
     db.games.insert_one({'_id': uuid,
+                         'name': name,
+                         'score': game.score,
                          'rows': game.rows,
                          'columns': game.columns})
     db.tileCreationHistory.insert_many(tile_creation_history)
