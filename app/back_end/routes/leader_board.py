@@ -66,21 +66,33 @@ def post_game_to_leader_board(
 
     if uuid not in active_games:
         raise ValueError(f'Game {uuid} is not an active game.')
-    if db.leaderBoard.count_documents({'_id': uuid}, limit=1) > 0:
+    if db.games.count_documents({'_id': uuid}, limit=1) > 0:
         active_games.pop(uuid)
         raise ValueError(f'Game {uuid} already exists in the database.')
 
-    tile_creation_history = [tile.dict() for tile in
-                             active_games[uuid].tile_creation_history]
+    game = active_games[uuid]
 
-    db.leaderBoard.insert_one(
-        {'_id': uuid,
-         'name': name,
-         'score': active_games[uuid].score,
-         'rows': active_games[uuid].rows,
-         'columns': active_games[uuid].columns,
-         'tileCreationHistory': tile_creation_history,
-         'moveHistory': active_games[uuid].move_history}
-    )
+    tile_creation_history = []
+    for sequence_id, tile in enumerate(game.tile_creation_history):
+        tile_creation_history.append({'tileSequenceID': sequence_id,
+                                      'row': tile.row,
+                                      'column': tile.column,
+                                      'value': tile.value,
+                                      'gameID': uuid})
+
+    move_history = []
+    for sequence_id, direction in enumerate(game.move_history):
+        move_history.append({'moveSequenceID': sequence_id,
+                             'direction': direction,
+                             'gameID': uuid})
+
+    db.leaderBoard.insert_one({'name': name,
+                               'score': game.score,
+                               'gameID': uuid})
+    db.games.insert_one({'_id': uuid,
+                         'rows': game.rows,
+                         'columns': game.columns})
+    db.tileCreationHistory.insert_many(tile_creation_history)
+    db.moveHistory.insert_many(move_history)
 
     active_games.pop(uuid)

@@ -1,6 +1,7 @@
 import random
 
 from fastapi import APIRouter, Depends, Query
+from pymongo import ASCENDING
 from pymongo.database import Database
 
 from ..constants import MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS, UUID_LENGTH
@@ -66,16 +67,34 @@ def load_game(
     if uuid in active_games:
         raise ValueError(f'Game {uuid} is already an active game.')
 
-    query_result = db.leaderBoard.find_one(
+    game_query_result = db.games.find_one(
         filter={'_id': uuid},
-        projection={'_id': False, 'rows': True, 'columns': True,
-                    'tileCreationHistory': True, 'moveHistory': True}
+        projection={'_id': False, 'rows': True, 'columns': True}
     )
 
-    if query_result is None:
+    if game_query_result is None:
         raise ValueError(f'Game {uuid} not found.')
 
-    load_game_response = LoadGameResponse(**query_result)
+    tile_query_result = db.tileCreationHistory.find(
+        filter={'gameID': uuid},
+        sort=[('tileSequenceID', ASCENDING)],
+        projection={'_id': False, 'row': True, 'column': True, 'value': True}
+    )
+
+    move_query_result = db.moveHistory.aggregate(
+        pipeline=[{'$match': {'gameID': uuid}},
+                  {'$sort': {'moveSequenceID': ASCENDING}},
+                  {'$group': {'_id': '$gameID',
+                              'direction': {'$push': '$direction'}}},
+                  {'$project': {'_id': False, 'direction': True}}]
+    )
+
+    load_game_response = LoadGameResponse(
+        rows=game_query_result['rows'],
+        columns=game_query_result['columns'],
+        tileCreationHistory=list(tile_query_result),
+        moveHistory=list(move_query_result)[0]['direction']
+    )
 
     active_games[uuid] = GameManager.load_game(
         rows=load_game_response.rows,
