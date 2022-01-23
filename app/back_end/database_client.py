@@ -4,7 +4,7 @@ from typing import Callable
 from pymongo import MongoClient
 from pymongo.database import Database
 
-DBDependency = Callable[[], Database]
+Dependency = Callable[[], Database]
 
 
 class DBClient:
@@ -19,7 +19,7 @@ class DBClient:
                                         authSource='admin',
                                         authMechanism='SCRAM-SHA-256')
 
-    def get_db_dependency(self, db: str = '2048Infinite') -> DBDependency:
+    def get_db_dependency(self, db: str = '2048Infinite') -> Dependency:
         def dependency() -> Database:
             return self.mongo_client[db]
 
