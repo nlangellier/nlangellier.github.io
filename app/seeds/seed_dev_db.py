@@ -15,15 +15,25 @@ def main():
                                authSource='admin',
                                authMechanism='SCRAM-SHA-256')
     db = mongo_client['2048Infinite']
-    delete_result = db.leaderBoard.delete_many(filter={})
-    print(f'Database clearing status: {delete_result.raw_result}')
 
-    fpath_seed_data = Path(__file__).parent / 'devLeaderBoard.json'
-    with open(file=fpath_seed_data, mode='r') as file_pointer:
-        seed_data = json.load(file_pointer)
+    dirpath_seed_data = Path(__file__).parent
 
-    insert_many_result = db.leaderBoard.insert_many(documents=seed_data)
-    print(f'Num of inserted documents: {len(insert_many_result.inserted_ids)}')
+    print('\nSeeding development database...')
+
+    for collection in ['games', 'moveHistory', 'tileCreationHistory']:
+        print(f'\nClearing {collection} collection...')
+        delete_result = db[collection].delete_many(filter={})
+        print(f'\tDeletion result: {delete_result.raw_result}')
+
+        print(f'Inserting seed data to {collection} collection...')
+        fpath_seed_data = dirpath_seed_data / f'dev_{collection}.json'
+        with open(file=fpath_seed_data, mode='r') as file_pointer:
+            seed_data = json.load(file_pointer)
+        insert_many_result = db[collection].insert_many(documents=seed_data)
+        num_documents = len(insert_many_result.inserted_ids)
+        print(f'\tNumber of inserted documents: {num_documents}')
+
+    print('\nSeeding complete.')
 
 
 if __name__ == '__main__':
