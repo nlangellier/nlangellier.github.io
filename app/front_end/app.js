@@ -57,30 +57,15 @@ class Game2048 {
         this.setAvailableMoves();
     }
 
-    getNewGridElement(gridClass, parent) {
-        const newElement = document.createElement('div');
-        newElement.classList.add(gridClass);
-        parent.appendChild(newElement);
-        return newElement;
-    };
-
-    createNewGridElement(gridClass, parent) {
-        this.getNewGridElement(gridClass, parent);
-    };
-
     initializeGrid() {
         this.grid.replaceChildren();
         for (let i = 0; i < this.rows; i++){
-            this.createNewGridElement('gridEdge', this.grid);
-            const newRow = this.getNewGridElement('gridRow', this.grid);
-
             for (let j = 0; j < this.columns; j++) {
-                this.createNewGridElement('gridEdge', newRow);
-                this.createNewGridElement('gridCell', newRow);
+                const newCell = document.createElement('div');
+                newCell.classList.add('cell', `row${i + 1}`, `column${j + 1}`);
+                this.grid.appendChild(newCell);
             }
-            this.createNewGridElement('gridEdge', newRow);
         }
-        this.createNewGridElement('gridEdge', this.grid);
     }
 
     initializeBoard() {
