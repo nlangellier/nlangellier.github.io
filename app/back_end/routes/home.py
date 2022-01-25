@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 
 from ..constants import DIRPATH_FRONT_END
 
-router = APIRouter()
+router = APIRouter(tags=['Root'])
 
 
 @router.get(path='/', response_class=HTMLResponse)

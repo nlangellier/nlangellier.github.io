@@ -2,16 +2,16 @@ from fastapi import APIRouter, Depends, Query
 from pymongo import DESCENDING
 from pymongo.database import Database
 
-from ..constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
-                         MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, UUID_LENGTH)
-from ..database_client import get_db
-from ..schemas import LeaderBoardEntry, LeaderBoardResponse
+from ...constants import (LEADER_BOARD_LENGTH, MAX_ROWS_COLUMNS,
+                          MAX_USERNAME_LENGTH, MIN_ROWS_COLUMNS, UUID_LENGTH)
+from ...database_client import get_db
+from ...schemas import LeaderBoardEntry, LeaderBoardResponse
 from .game import active_games
 
-router = APIRouter()
+router = APIRouter(prefix='/leader-board', tags=['Leader Board'])
 
 
-@router.get(path='/leader-board', response_model=LeaderBoardResponse)
+@router.get(path='/', response_model=LeaderBoardResponse)
 def get_leader_board(
         rows: int = Query(default=...,
                           description='Number of rows of the game board',
@@ -45,7 +45,7 @@ def get_leader_board(
     return LeaderBoardResponse(leaders=leaders)
 
 
-@router.post(path='/leader-board', response_model=None)
+@router.post(path='/', response_model=None)
 def post_game_to_leader_board(
         uuid: str = Query(default=...,
                           description='Game ID',

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+router = APIRouter(tags=['Server Connection'])
 
 
 @router.get(path='/ping', response_model=str)

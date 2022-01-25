@@ -4,19 +4,19 @@ from fastapi import APIRouter, Depends, Query
 from pymongo import ASCENDING
 from pymongo.database import Database
 
-from ..constants import MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS, UUID_LENGTH
-from ..database_client import get_db
-from ..game_manager import GameManager
-from ..id_generator import generate_uuid
-from ..schemas import (Direction, LoadGameResponse, MoveResponse,
-                       NewGameResponse)
+from ...constants import MAX_ROWS_COLUMNS, MIN_ROWS_COLUMNS, UUID_LENGTH
+from ...database_client import get_db
+from ...game_manager import GameManager
+from ...id_generator import generate_uuid
+from ...schemas import (Direction, LoadGameResponse, MoveResponse,
+                        NewGameResponse)
 
-router = APIRouter()
+router = APIRouter(prefix='/game', tags=['Games'])
 
 active_games: dict[str, GameManager] = {}
 
 
-@router.get(path='/game/new', response_model=NewGameResponse)
+@router.get(path='/new', response_model=NewGameResponse)
 def start_new_game(
         rows: int = Query(default=...,
                           description='Number of rows of the game board',
@@ -45,7 +45,7 @@ def start_new_game(
     return NewGameResponse(uuid=uuid, startingTiles=starting_tiles)
 
 
-@router.get(path='/game/load', response_model=LoadGameResponse)
+@router.get(path='/load', response_model=LoadGameResponse)
 def load_game(
     uuid: str = Query(default=...,
                       description='Game ID',
@@ -106,7 +106,7 @@ def load_game(
     return load_game_response
 
 
-@router.get(path='/game/move-tiles', response_model=MoveResponse)
+@router.get(path='/move-tiles', response_model=MoveResponse)
 def move_tiles(
         uuid: str = Query(default=...,
                           description='Game ID',
@@ -136,7 +136,7 @@ def move_tiles(
     return MoveResponse(nextTile=active_games[uuid].tile_creation_history[-1])
 
 
-@router.get(path='/game/hint', response_model=Direction)
+@router.get(path='/hint', response_model=Direction)
 def get_hint(
         uuid: str = Query(default=...,
                           description='Game ID',
